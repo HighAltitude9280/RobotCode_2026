@@ -66,19 +66,7 @@ This lets us run **the same robot logic** in Real / Sim / Replay without rewriti
 ## 📦 Repo Layout
 
 ```txt
-src/main/java/frc/robot
-├── Robot.java
-├── RobotContainer.java
-├── Constants.java
-├── subsystems/
-│   └── <SubsystemName>/
-│       ├── <SubsystemName>.java         (logic)
-│       ├── <SubsystemName>IO.java       (interface)
-│       ├── <SubsystemName>IOReal.java   (real impl)
-│       ├── <SubsystemName>IOSim.java    (sim impl)
-│       └── <SubsystemName>IOReplay.java (replay impl)
-├── commands/
-└── autos/
+still in build
 ````
 
 ---
