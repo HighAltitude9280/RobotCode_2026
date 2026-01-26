@@ -5,7 +5,7 @@
 ========================================================== -->
 
 <p align="center">
-  
+
   <img src="media/banner.png" alt="High Altitude 9280 - RobotCode_2026" width="900"/>
 
 </p>
@@ -40,7 +40,7 @@
 
 This repo contains Team 9280 (High Altitude Robotics) **FRC 2026** robot code, designed around one core idea:
 
-> **If it’s not logged, it didn’t happen.**  
+> **If it’s not logged, it didn’t happen.**
 > Logs are our source of truth — for diagnosis, tuning, and regression checks.
 
 We’re moving from a custom Command-Based setup to a **LoggedRobot + AdvantageKit** backbone to make bugs reproducible and iteration loops shorter.
@@ -185,8 +185,8 @@ This repository includes files and dependencies that may have their own licenses
 ---
 
 <div align="center">
-  
+
   <br/>
   <span style="color:#009280"><b>#AimHigher</b></span>
-  
+
 </div>
