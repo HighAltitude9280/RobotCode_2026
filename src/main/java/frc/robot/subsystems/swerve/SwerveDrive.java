@@ -1,71 +1,151 @@
 package frc.robot.subsystems.swerve;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.HighAltitudeConstants;
+import frc.robot.Robot;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
+import frc.robot.util.PhoenixOdometryThread;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveDrive extends SubsystemBase {
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final SwerveModule[] modules;
-  private final SwerveDriveKinematics kinematics;
+  private final SwerveDrivePoseEstimator poseEstimator;
 
-  // TODO: Ajustar dimensiones reales en HighAltitudeConstants
-  // Trackwidth: Distancia izquierda-derecha, Wheelbase: Distancia frente-atrás
-  private final double TRACK_WIDTH_M = 0.5;
-  private final double WHEEL_BASE_M = 0.5;
+  // Cache de posiciones para no crear arrays en cada loop (Optimización)
+  private final SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
   public SwerveDrive(GyroIO gyroIO, SwerveModule... modules) {
     this.gyroIO = gyroIO;
     this.modules = modules;
 
-    // FL, FR, BL, BR
-    this.kinematics =
-        new SwerveDriveKinematics(
-            new Translation2d(WHEEL_BASE_M / 2.0, TRACK_WIDTH_M / 2.0),
-            new Translation2d(WHEEL_BASE_M / 2.0, -TRACK_WIDTH_M / 2.0),
-            new Translation2d(-WHEEL_BASE_M / 2.0, TRACK_WIDTH_M / 2.0),
-            new Translation2d(-WHEEL_BASE_M / 2.0, -TRACK_WIDTH_M / 2.0));
+    // Inicializar array
+    for (int i = 0; i < 4; i++) {
+      modulePositions[i] = new SwerveModulePosition();
+    }
+
+    this.poseEstimator =
+        new SwerveDrivePoseEstimator(
+            HighAltitudeConstants.Swerve.KINEMATICS,
+            new Rotation2d(),
+            getModulePositions(),
+            new Pose2d());
   }
 
   @Override
   public void periodic() {
-    // 1. Update Gyro
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
 
-    // 2. Update Modules
     for (SwerveModule module : modules) {
       module.periodic();
     }
 
-    // 3. Log Pose / Odometry (Pendiente: añadir PoseEstimator aquí)
+    // --- ODOMETRÍA POWERHOUSE ---
+    if (Robot.isReal()) {
+      // 1. Hardware Real: Consumir la cola de Alta Frecuencia (250Hz)
+      var queue = PhoenixOdometryThread.getInstance().getQueue();
+      var sample = queue.poll(); // Extraer muestra
+
+      while (sample != null) {
+        // Convertir arrays de doubles a SwerveModulePosition[]
+        for (int i = 0; i < 4; i++) {
+          modulePositions[i].distanceMeters =
+              sample.drivePositionsRad()[i] * HighAltitudeConstants.Swerve.WHEEL_RADIUS_METERS;
+          modulePositions[i].angle = new Rotation2d(sample.turnPositionsRad()[i]);
+        }
+
+        // Actualizar Pose Estimator con timestamp preciso
+        // (En un robot real usaríamos el gyro interpolado, aquí usamos el último
+        // conocido por simplicidad
+        // o idealmente tendríamos un thread de gyro también).
+        poseEstimator.updateWithTime(
+            sample.timestamp(), Rotation2d.fromRadians(gyroInputs.yawPositionRad), modulePositions);
+
+        sample = queue.poll(); // Siguiente muestra
+      }
+    } else {
+      // 2. Simulación: Discretización para reducir Drift
+      var moduleStates = getModuleStates();
+      var chassisSpeeds = HighAltitudeConstants.Swerve.KINEMATICS.toChassisSpeeds(moduleStates);
+
+      // CORRECCIÓN DE SKEW (Discretize):
+      // Predice dónde estará el robot al final del ciclo (20ms) considerando
+      // rotación.
+      var discretizedSpeeds = ChassisSpeeds.discretize(chassisSpeeds, 0.02);
+
+      double yawIncrement = discretizedSpeeds.omegaRadiansPerSecond * 0.02;
+      gyroInputs.yawPositionRad += yawIncrement; // Integración más precisa
+
+      poseEstimator.update(Rotation2d.fromRadians(gyroInputs.yawPositionRad), getModulePositions());
+    }
+
+    Logger.recordOutput("Odometry/Robot", getPose());
+    Logger.recordOutput("Odometry/ModuleStates", getModuleStates());
   }
 
-  /**
-   * * Método principal de control.
-   *
-   * @param speeds Velocidades en el chasis (m/s, rad/s)
-   */
   public void runVelocity(ChassisSpeeds speeds) {
-    // Convertir chassis speeds a module states
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(speeds);
+    // CORRECCIÓN POWERHOUSE: Discretizar el setpoint también
+    // Esto ayuda a que el robot siga arcos perfectos en lugar de polígonos.
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
 
-    // Desaturar (si un módulo pide > max velocidad, escalar todos hacia abajo)
-    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, 4.5); // Max 4.5 m/s placeholder
+    SwerveModuleState[] setpointStates =
+        HighAltitudeConstants.Swerve.KINEMATICS.toSwerveModuleStates(discreteSpeeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        setpointStates, HighAltitudeConstants.Swerve.MAX_LINEAR_SPEED_M_S);
 
-    // Enviar a módulos
     for (int i = 0; i < 4; i++) {
       modules[i].runSetpoint(setpointStates[i]);
     }
   }
 
+  // ... (Resto de métodos: stop, zeroGyro, getPose... iguales)
   public void stop() {
     runVelocity(new ChassisSpeeds());
+  }
+
+  public void zeroGyro() {
+    gyroIO.reset();
+    Pose2d currentPose = getPose();
+    resetPose(new Pose2d(currentPose.getTranslation(), new Rotation2d()));
+  }
+
+  public void resetPose(Pose2d pose) {
+    poseEstimator.resetPosition(
+        Rotation2d.fromRadians(gyroInputs.yawPositionRad), getModulePositions(), pose);
+  }
+
+  public Pose2d getPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  public Rotation2d getRotation() {
+    return getPose().getRotation();
+  }
+
+  public SwerveModulePosition[] getModulePositions() {
+    // Retorna las posiciones actuales (lectura directa para uso general)
+    SwerveModulePosition[] positions = new SwerveModulePosition[4];
+    for (int i = 0; i < 4; i++) {
+      positions[i] = modules[i].getPosition();
+    }
+    return positions;
+  }
+
+  public SwerveModuleState[] getModuleStates() {
+    SwerveModuleState[] states = new SwerveModuleState[4];
+    for (int i = 0; i < 4; i++) {
+      states[i] = modules[i].getState();
+    }
+    return states;
   }
 }

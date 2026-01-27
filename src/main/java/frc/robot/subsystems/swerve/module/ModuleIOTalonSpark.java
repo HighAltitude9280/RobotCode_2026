@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve.module;
 
-import static edu.wpi.first.units.Units.*; // Para conversiones (Volts, Radians, etc.)
+import static edu.wpi.first.units.Units.*;
+// Importar el nuevo thread
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -18,7 +19,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.units.measure.*; // Importante para tipos Angle, Voltage, etc.
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.*;
+import frc.robot.util.PhoenixOdometryThread;
 
 public class ModuleIOTalonSpark implements ModuleIO {
   // Hardware
@@ -27,8 +30,7 @@ public class ModuleIOTalonSpark implements ModuleIO {
   private final CANcoder turnCanCoder;
   private final RelativeEncoder turnRelativeEncoder;
 
-  // Status Signals (Phoenix 6 Typed Signals)
-  // CORRECCIÓN: Tipos estrictos en lugar de <Double>
+  // Status Signals (Typed)
   private final StatusSignal<Angle> drivePosition;
   private final StatusSignal<AngularVelocity> driveVelocity;
   private final StatusSignal<Voltage> driveAppliedVolts;
@@ -47,13 +49,14 @@ public class ModuleIOTalonSpark implements ModuleIO {
       int driveID,
       int turnID,
       int cancoderID,
+      Rotation2d angleOffset,
       double driveGearRatio,
       double turnGearRatio,
       boolean driveInverted) {
     this.DRIVE_GEAR_RATIO = driveGearRatio;
     this.TURN_GEAR_RATIO = turnGearRatio;
 
-    // 1. Configure Drive (TalonFX - Phoenix 6)
+    // 1. Configure Drive (TalonFX)
     driveTalon = new TalonFX(driveID, "rio");
     TalonFXConfiguration driveConfig = new TalonFXConfiguration();
     driveConfig.MotorOutput.Inverted =
@@ -63,7 +66,7 @@ public class ModuleIOTalonSpark implements ModuleIO {
     driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     driveTalon.getConfigurator().apply(driveConfig);
 
-    // 2. Configure Turn (SparkMax - REVLib 2026)
+    // 2. Configure Turn (SparkMax)
     turnSpark = new SparkMax(turnID, MotorType.kBrushless);
     turnRelativeEncoder = turnSpark.getEncoder();
 
@@ -72,12 +75,13 @@ public class ModuleIOTalonSpark implements ModuleIO {
     turnConfig.smartCurrentLimit(30);
     turnSpark.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // 3. Configure CANCoder (Phoenix 6)
+    // 3. Configure CANCoder
     turnCanCoder = new CANcoder(cancoderID, "rio");
     CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
+    cancoderConfig.MagnetSensor.MagnetOffset = angleOffset.getRotations();
     turnCanCoder.getConfigurator().apply(cancoderConfig);
 
-    // 4. Signal Setup for Logging
+    // 4. Signal Setup
     drivePosition = driveTalon.getPosition();
     driveVelocity = driveTalon.getVelocity();
     driveAppliedVolts = driveTalon.getMotorVoltage();
@@ -85,23 +89,26 @@ public class ModuleIOTalonSpark implements ModuleIO {
     driveTemp = driveTalon.getDeviceTemp();
     turnAbsolutePos = turnCanCoder.getAbsolutePosition();
 
+    // 1. Baja prioridad para datos no críticos (50Hz está bien)
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
-        drivePosition,
-        driveVelocity,
-        driveAppliedVolts,
-        driveCurrent,
-        driveTemp,
-        turnAbsolutePos);
+        50.0, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp);
+
+    // 2. ALTA PRIORIDAD para Odometría (250Hz)
+    BaseStatusSignal.setUpdateFrequencyForAll(250.0, drivePosition, turnAbsolutePos);
+
+    // 3. Registrar en el Thread Powerhouse
+    // Como ya arreglamos el Thread para aceptar StatusSignal<Angle>, esto compila
+    // perfecto.
+    PhoenixOdometryThread.getInstance().registerSignals(drivePosition, turnAbsolutePos);
   }
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    // Refresh Phoenix 6 Signals
+    // Refrescamos señales normales (Odometría se maneja en thread o aquí si thread
+    // falla)
     BaseStatusSignal.refreshAll(
         drivePosition, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp, turnAbsolutePos);
 
-    // CORRECCIÓN: Convertir explícitamente usando .in(Units)
     inputs.drivePositionRad = drivePosition.getValue().in(Radians) / DRIVE_GEAR_RATIO;
     inputs.driveVelocityRadPerSec =
         driveVelocity.getValue().in(RadiansPerSecond) / DRIVE_GEAR_RATIO;
@@ -109,8 +116,6 @@ public class ModuleIOTalonSpark implements ModuleIO {
     inputs.driveCurrentAmps = driveCurrent.getValue().in(Amps);
     inputs.driveTempCelcius = driveTemp.getValue().in(Celsius);
 
-    // Turn (SparkMax - REVLib units are usually Rotations by default, check your specific config)
-    // Asumiendo default REV: Pos=Rotations, Vel=RPM
     inputs.turnPositionRad =
         edu.wpi.first.math.util.Units.rotationsToRadians(turnRelativeEncoder.getPosition())
             / TURN_GEAR_RATIO;
@@ -121,14 +126,6 @@ public class ModuleIOTalonSpark implements ModuleIO {
     inputs.turnAppliedVolts = turnSpark.getAppliedOutput() * turnSpark.getBusVoltage();
     inputs.turnCurrentAmps = turnSpark.getOutputCurrent();
 
-    // Absolute (Phoenix 6 units: Rotations -> Radians via Units lib is safer, but Phoenix returns
-    // rotations by default for Angle type??)
-    // Phoenix 6 Angle type default unit is Rotations.
-    inputs.turnAbsolutePositionRad =
-        drivePosition.getValue().in(Rotations)
-            * 2.0
-            * Math.PI; // O usar .in(Radians) si Phoenix lo soporta directo
-    // Mejor práctica Phoenix 6 + WPILib Units:
     inputs.turnAbsolutePositionRad = turnAbsolutePos.getValue().in(Radians);
   }
 

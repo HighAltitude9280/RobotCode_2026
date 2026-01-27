@@ -2,11 +2,15 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.HighAltitudeConstants.Swerve;
+import frc.robot.HighAltitudeConstants.Swerve.ModuleConstants;
+import frc.robot.commands.swerve.SwerveDefaultCommand;
+import frc.robot.controls.profiles.DefaultDriver;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwerveModule;
 import frc.robot.subsystems.swerve.gyro.GyroIONavX;
 import frc.robot.subsystems.swerve.gyro.GyroIOSim;
+import frc.robot.subsystems.swerve.module.ModuleIO;
 import frc.robot.subsystems.swerve.module.ModuleIOSim;
 import frc.robot.subsystems.swerve.module.ModuleIOTalonSpark;
 
@@ -15,20 +19,16 @@ public class RobotContainer {
 
   public RobotContainer() {
     if (Robot.isReal()) {
-      // Real Hardware Injection
-      // TODO: Reemplazar los números mágicos (IDs) con HighAltitudeConstants
-      // Orden: driveID, turnID, cancoderID, driveGearRatio, turnGearRatio,
-      // driveInverted
+      // Real Hardware
       drive =
           new SwerveDrive(
               new GyroIONavX(),
-              new SwerveModule(new ModuleIOTalonSpark(1, 2, 9, 6.75, 12.8, false), 0), // FL
-              new SwerveModule(new ModuleIOTalonSpark(3, 4, 10, 6.75, 12.8, false), 1), // FR
-              new SwerveModule(new ModuleIOTalonSpark(5, 6, 11, 6.75, 12.8, false), 2), // BL
-              new SwerveModule(new ModuleIOTalonSpark(7, 8, 12, 6.75, 12.8, false), 3) // BR
-              );
+              createRealModule(Swerve.MOD_FL, 0),
+              createRealModule(Swerve.MOD_FR, 1),
+              createRealModule(Swerve.MOD_BL, 2),
+              createRealModule(Swerve.MOD_BR, 3));
     } else {
-      // Sim Injection
+      // Simulation
       drive =
           new SwerveDrive(
               new GyroIOSim(),
@@ -41,12 +41,28 @@ public class RobotContainer {
     configureBindings();
   }
 
+  private SwerveModule createRealModule(ModuleConstants constants, int index) {
+    ModuleIO io =
+        new ModuleIOTalonSpark(
+            constants.driveID(), // CORREGIDO: antes driveMotorID()
+            constants.turnID(), // CORREGIDO: antes turnMotorID()
+            constants.cancoderID(),
+            constants.offset(), // AGREGADO: Pasamos el offset del encoder
+            Swerve.DRIVE_GEAR_RATIO,
+            Swerve.TURN_GEAR_RATIO,
+            constants.driveInverted());
+    return new SwerveModule(io, index);
+  }
+
   private void configureBindings() {
-    // Default Command simple para probar que no crashea
-    drive.setDefaultCommand(new RunCommand(() -> drive.stop(), drive));
+    drive.setDefaultCommand(new SwerveDefaultCommand(drive, new DefaultDriver()));
   }
 
   public Command getAutonomousCommand() {
     return Commands.print("No Auto Configured");
+  }
+
+  public SwerveDrive getDrive() {
+    return drive;
   }
 }

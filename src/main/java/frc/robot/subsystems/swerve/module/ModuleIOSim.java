@@ -4,10 +4,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.robot.HighAltitudeConstants;
 
 public class ModuleIOSim implements ModuleIO {
-  // Sim Objects
-  // CORRECCIÓN: Usar LinearSystemId para definir el modelo físico explícitamente
   private final FlywheelSim driveSim;
   private final DCMotorSim turnSim;
 
@@ -15,33 +14,35 @@ public class ModuleIOSim implements ModuleIO {
   private double turnAppliedVolts = 0.0;
 
   public ModuleIOSim() {
-    // Drive: Kraken X60, Gearing 6.75, Inertia 0.025 (kg*m^2)
-    // LinearSystemId.createFlywheelSystem(motor, J, gearing)
+    // --- DRIVE SIM (Kraken X60) ---
+    var drivePlant =
+        LinearSystemId.createFlywheelSystem(
+            DCMotor.getKrakenX60(1), 0.025, HighAltitudeConstants.Swerve.DRIVE_GEAR_RATIO);
+
     driveSim =
         new FlywheelSim(
-            LinearSystemId.createFlywheelSystem(DCMotor.getKrakenX60(1), 0.025, 6.75),
-            DCMotor.getKrakenX60(1),
-            6.75);
+            drivePlant, DCMotor.getKrakenX60(1), HighAltitudeConstants.Swerve.DRIVE_GEAR_RATIO);
 
-    // Turn: NEO, Gearing 12.8, Inertia 0.004
-    // LinearSystemId.createDCMotorSystem(motor, J, gearing)
+    // --- TURN SIM (NEO) ---
+    var turnPlant =
+        LinearSystemId.createDCMotorSystem(
+            DCMotor.getNEO(1), 0.004, HighAltitudeConstants.Swerve.TURN_GEAR_RATIO);
+
+    // CORRECCIÓN: Ponemos el ruido en 0.0 para evitar el drift en AdvantageScope
     turnSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.004, 12.8),
-            DCMotor.getNEO(1),
-            12.8);
+            turnPlant, DCMotor.getNEO(1), 0.0, 0.0 // <--- CERO RUIDO = Odometría Estable
+            );
   }
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    // Update Physics (loop time 20ms standard)
     driveSim.setInput(driveAppliedVolts);
     turnSim.setInput(turnAppliedVolts);
 
     driveSim.update(0.02);
     turnSim.update(0.02);
 
-    // Write to Inputs
     inputs.drivePositionRad += driveSim.getAngularVelocityRadPerSec() * 0.02;
     inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
     inputs.driveAppliedVolts = driveAppliedVolts;
@@ -52,7 +53,6 @@ public class ModuleIOSim implements ModuleIO {
     inputs.turnAppliedVolts = turnAppliedVolts;
     inputs.turnCurrentAmps = turnSim.getCurrentDrawAmps();
 
-    // Simular encoder absoluto perfecto
     inputs.turnAbsolutePositionRad = inputs.turnPositionRad;
   }
 
