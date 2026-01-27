@@ -8,7 +8,6 @@ public class GyroIONavX implements GyroIO {
   private final AHRS navx;
 
   public GyroIONavX() {
-    // navx = new AHRS(SPI.Port.kMXP);
     navx = new AHRS(NavXComType.kMXP_SPI);
   }
 

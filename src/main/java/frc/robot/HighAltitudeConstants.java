@@ -41,6 +41,16 @@ public final class HighAltitudeConstants {
     public static final int OPERATOR_PORT = 1;
   }
 
+  // --- PHYSICS SIMULATION CONSTANTS ---
+  // Masa del robot (aprox 90lbs)
+  public static final double ROBOT_MASS_KG = 40.82;
+
+  // Momentos de Inercia (J)
+  // Inercia del mecanismo de giro (masa pequeña rotando)
+  public static final double MOI_TURN_KG_M2 = 0.004;
+  // Inercia de la transmisión (rueda + carga efectiva del robot sobre la rueda)
+  public static final double MOI_DRIVE_KG_M2 = 0.025;
+
   // =============================================================================
   // SWERVE SUBSYSTEM
   // =============================================================================

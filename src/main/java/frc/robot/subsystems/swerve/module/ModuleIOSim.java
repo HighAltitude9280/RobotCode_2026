@@ -7,62 +7,78 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.HighAltitudeConstants;
 
 public class ModuleIOSim implements ModuleIO {
-  private final FlywheelSim driveSim;
-  private final DCMotorSim turnSim;
 
-  private double driveAppliedVolts = 0.0;
-  private double turnAppliedVolts = 0.0;
+    // Simuladores Físicos
+    private final FlywheelSim driveSim;
+    private final DCMotorSim turnSim;
 
-  public ModuleIOSim() {
-    // --- DRIVE SIM (Kraken X60) ---
-    var drivePlant =
-        LinearSystemId.createFlywheelSystem(
-            DCMotor.getKrakenX60(1), 0.025, HighAltitudeConstants.Swerve.DRIVE_GEAR_RATIO);
+    // Estado de Voltajes
+    private double driveAppliedVolts = 0.0;
+    private double turnAppliedVolts = 0.0;
 
-    driveSim =
-        new FlywheelSim(
-            drivePlant, DCMotor.getKrakenX60(1), HighAltitudeConstants.Swerve.DRIVE_GEAR_RATIO);
+    public ModuleIOSim() {
+        System.out.println("[Init] Creating ModuleIOSim PowerHouse Style");
 
-    // --- TURN SIM (NEO) ---
-    var turnPlant =
-        LinearSystemId.createDCMotorSystem(
-            DCMotor.getNEO(1), 0.004, HighAltitudeConstants.Swerve.TURN_GEAR_RATIO);
+        // --- DRIVE SIMULATION (Kraken X60) ---
+        // 1. Crear Planta (Modelo Físico)
+        var drivePlant = LinearSystemId.createFlywheelSystem(
+                DCMotor.getKrakenX60(1),
+                HighAltitudeConstants.MOI_DRIVE_KG_M2,
+                HighAltitudeConstants.Swerve.DRIVE_GEAR_RATIO);
 
-    // CORRECCIÓN: Ponemos el ruido en 0.0 para evitar el drift en AdvantageScope
-    turnSim =
-        new DCMotorSim(
-            turnPlant, DCMotor.getNEO(1), 0.0, 0.0 // <--- CERO RUIDO = Odometría Estable
-            );
-  }
+        // 2. Crear Simulador
+        driveSim = new FlywheelSim(
+                drivePlant, DCMotor.getKrakenX60(1), 0.0 // <--- Ruido de Velocidad (double... varargs)
+        );
 
-  @Override
-  public void updateInputs(ModuleIOInputs inputs) {
-    driveSim.setInput(driveAppliedVolts);
-    turnSim.setInput(turnAppliedVolts);
+        // --- TURN SIMULATION (NEO) ---
+        // 1. Crear Planta
+        var turnPlant = LinearSystemId.createDCMotorSystem(
+                DCMotor.getNEO(1),
+                HighAltitudeConstants.MOI_TURN_KG_M2,
+                HighAltitudeConstants.Swerve.TURN_GEAR_RATIO);
 
-    driveSim.update(0.02);
-    turnSim.update(0.02);
+        // 2. Crear Simulador
+        turnSim = new DCMotorSim(
+                turnPlant, DCMotor.getNEO(1), 0.0, 0.0 // <--- Ruido de [Pos, Vel] (double... varargs)
+        );
+    }
 
-    inputs.drivePositionRad += driveSim.getAngularVelocityRadPerSec() * 0.02;
-    inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
-    inputs.driveAppliedVolts = driveAppliedVolts;
-    inputs.driveCurrentAmps = driveSim.getCurrentDrawAmps();
+    @Override
+    public void updateInputs(ModuleIOInputs inputs) {
+        // 1. Aplicar Voltajes
+        driveSim.setInputVoltage(driveAppliedVolts);
+        turnSim.setInputVoltage(turnAppliedVolts);
 
-    inputs.turnPositionRad = turnSim.getAngularPositionRad();
-    inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
-    inputs.turnAppliedVolts = turnAppliedVolts;
-    inputs.turnCurrentAmps = turnSim.getCurrentDrawAmps();
+        // 2. Avanzar Física (20ms)
+        driveSim.update(0.02);
+        turnSim.update(0.02);
 
-    inputs.turnAbsolutePositionRad = inputs.turnPositionRad;
-  }
+        // 3. Output a Inputs
 
-  @Override
-  public void setDriveVoltage(double volts) {
-    driveAppliedVolts = volts;
-  }
+        // Drive (FlywheelSim es velocidad -> Integramos posición manualmente)
+        inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
+        inputs.drivePositionRad += inputs.driveVelocityRadPerSec * 0.02;
+        inputs.driveAppliedVolts = driveAppliedVolts;
+        inputs.driveCurrentAmps = driveSim.getCurrentDrawAmps();
 
-  @Override
-  public void setTurnVoltage(double volts) {
-    turnAppliedVolts = volts;
-  }
+        // Turn (DCMotorSim ya maneja posición)
+        inputs.turnPositionRad = turnSim.getAngularPositionRad();
+        inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
+        inputs.turnAppliedVolts = turnAppliedVolts;
+        inputs.turnCurrentAmps = turnSim.getCurrentDrawAmps();
+
+        // Encoder Absoluto (Perfecto en Sim)
+        inputs.turnAbsolutePositionRad = inputs.turnPositionRad;
+    }
+
+    @Override
+    public void setDriveVoltage(double volts) {
+        this.driveAppliedVolts = volts;
+    }
+
+    @Override
+    public void setTurnVoltage(double volts) {
+        this.turnAppliedVolts = volts;
+    }
 }
