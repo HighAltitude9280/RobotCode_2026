@@ -17,9 +17,12 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 public class Robot extends LoggedRobot {
@@ -28,6 +31,60 @@ public class Robot extends LoggedRobot {
 
   public Robot() {
     // Record metadata
+    /*
+     * TODO: Coding missing
+     * 
+     * *Swerve:
+     * - DriveToPose (TOPP), have two sets of gain values, one for speed and other
+     * for precission
+     * - Swerve SysID (Drive) (Turn?)
+     * - Swerve SnapToHub & SnapToFeed (turnTo)
+     * - SetUp for a future ShootOnTheFly (methods and stuff missing)
+     * 
+     * RobotStates: Intaking, ShootingHub, ShootingFeed, Climbing(Dividing Auto or
+     * TeleOp), SwerveMotion(For ShootOnTheFly), no sé cuáles faltarían
+     * 
+     * Subsystems:
+     * -Requirements for every single one:
+     * -HAL (KrakenX60, KrakenX44, NEO SparkMax,s NEOVortex SparkFlex)
+     * -HighAltitudeConstants with ID Values, Inverted Values, Speeds, Gain Values,
+     * Setpoints, TypeOfMotor, etc. (changes adapted to each subsystem)
+     * 
+     * *Shooter:
+     * - Creating the subsystem and methods (basic & advanced ones)
+     * - SysID for PID (RPM) and FF for faster accel
+     * - Logging setpoints and actualSpeed for FineTuning
+     * 
+     * *Indexer:
+     * - Creating the subsystem and methods (basic & advanced ones)
+     * - SysID for FF, tune two (if needed) FF, one for intaking and the other one
+     * for feeding the Shooter
+     * - Log only the neccessarie
+     * 
+     * *Intake:
+     * - Creating the subsystem and methods (basic & advanced ones)
+     * - SysID for FF
+     * 
+     * *IntakePivot:
+     * - Creating the subsystem and methods (basic & advanced ones)
+     * - SysID for PID
+     * - Create the Mechanism3D for Simulation/Replay?
+     * 
+     * *Climber:
+     * - Creating the subsystem and methods (basic & advanced ones)
+     * - FF for the climber in order to not fall down
+     * - Reminder: Climb in auto, then go down unclimb, and play all teleop, at
+     * endgame reclimb
+     * - Create the Mechanism3D for Simulation/Replay?
+     * 
+     * *POSSIBLE: ShooterHood/Pivot:
+     * - Creating the subsystem and methods (basic & advanced ones)
+     * - See where to create the AutoAim, based on the RobotPose & RobotMode return
+     * a HoodAngle, for better results we are keeping the same RPM for both methods
+     * and all lengths
+     * - Create the Mechanism3D for Simulation/Replay?
+     * 
+     */
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -78,13 +135,18 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  /**
+   * This autonomous runs the autonomous command selected by your
+   * {@link RobotContainer} class.
+   */
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
@@ -95,7 +157,8 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -107,21 +170,26 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+  }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }

@@ -116,13 +116,11 @@ public class ModuleIOTalonSpark implements ModuleIO {
         inputs.driveCurrentAmps = driveCurrent.getValue().in(Amps);
         inputs.driveTempCelcius = driveTemp.getValue().in(Celsius);
 
-        inputs.turnPositionRad = Units.rotationsToRadians(turnRelativeEncoder.getPosition())
+        inputs.turnPositionRad = Units.rotationsToRadians(turnRelativeEncoder.getPosition()) / TURN_GEAR_RATIO;
+
+        inputs.turnVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(turnRelativeEncoder.getVelocity())
                 / TURN_GEAR_RATIO;
 
-        inputs.turnVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
-                turnRelativeEncoder.getVelocity())
-                / TURN_GEAR_RATIO;
-                
         inputs.turnAppliedVolts = turnSpark.getAppliedOutput() * turnSpark.getBusVoltage();
         inputs.turnCurrentAmps = turnSpark.getOutputCurrent();
 
@@ -151,6 +149,7 @@ public class ModuleIOTalonSpark implements ModuleIO {
     public void setTurnBrakeMode(boolean enable) {
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-        turnSpark.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        turnSpark.configure(config, ResetMode.kNoResetSafeParameters,
+                PersistMode.kNoPersistParameters);
     }
 }

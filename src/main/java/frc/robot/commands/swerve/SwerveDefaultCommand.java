@@ -14,7 +14,7 @@ public class SwerveDefaultCommand extends Command {
   private final BooleanSupplier isFieldOriented;
 
   // Slew Rate Limiters (Filtros para suavizar el input del joystick)
-  //FIXME: slewRate repetido, incluirlo únicamente en SwerveModule
+  // FIXME: slewRate repetido, incluirlo únicamente en SwerveModule
   private final SlewRateLimiter xLimiter =
       new SlewRateLimiter(3.0); // 3 unidades/seg (0 a 1 en 0.33s)
   private final SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);

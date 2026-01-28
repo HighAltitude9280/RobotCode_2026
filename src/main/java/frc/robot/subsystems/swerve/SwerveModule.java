@@ -58,8 +58,7 @@ public class SwerveModule {
 
     public void runSetpoint(SwerveModuleState state) {
         // Optimización manual
-        // FIXME: Corregir la optimización manual por la optimización de
-        // SwerveDriveKinematics
+        // FIXME: Corregir la optimización por la optimización de SwerveDriveKinematics
         Rotation2d currentAngle = new Rotation2d(inputs.turnAbsolutePositionRad);
         var delta = state.angle.minus(currentAngle);
         if (Math.abs(delta.getDegrees()) > 90.0) {
