@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.util.LoggedTunableNumber;
 
 public final class HighAltitudeConstants {
   public static final Mode simMode = Mode.SIM;
@@ -39,6 +40,64 @@ public final class HighAltitudeConstants {
     public static final double DEADBAND = 0.1;
     public static final int DRIVER_PORT = 0;
     public static final int OPERATOR_PORT = 1;
+  }
+
+  // --- GLOBAL FLAGS ---
+  // Poner en FALSE para competencia real (seguridad).
+  // Poner en TRUE para habilitar el Tuning en Dashboard.
+  public static final boolean TUNING_MODE = true;
+
+  // ... (Otras constantes existentes del Swerve) ...
+
+  public static final class Auto {
+    // --- CONSTRAINTS FÍSICOS (Hardcoded - Rara vez se tunean en vivo) ---
+
+    // Travel Mode (Rápido)
+    public static final double TRAVEL_LINEAR_VELOCITY = 4.5;
+    public static final double TRAVEL_LINEAR_ACCELERATION = 3.0;
+    public static final double TRAVEL_ANGULAR_VELOCITY = Math.PI * 2; // ~360 deg/s
+    public static final double TRAVEL_ANGULAR_ACCELERATION = Math.PI * 4;
+
+    // Precision Mode (Lento)
+    public static final double PRECISION_LINEAR_VELOCITY = 1.5;
+    public static final double PRECISION_LINEAR_ACCELERATION = 1.5;
+    public static final double PRECISION_ANGULAR_VELOCITY = Math.PI; // ~180 deg/s
+    public static final double PRECISION_ANGULAR_ACCELERATION = Math.PI * 2;
+
+    public static final double POSE_TOLERANCE_METERS = 0.05;
+    public static final double POSE_TOLERANCE_RADIANS = Units.degreesToRadians(2.0);
+
+    // --- LIVE TUNABLE PIDs (Dual Gains) ---
+
+    // 1. TRAVEL MODE (Movement)
+    public static final LoggedTunableNumber travelDriveKp =
+        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Translation/kP", 2.5);
+    public static final LoggedTunableNumber travelDriveKi =
+        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Translation/kI", 0.0);
+    public static final LoggedTunableNumber travelDriveKd =
+        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Translation/kD", 0.0);
+
+    public static final LoggedTunableNumber travelSteerKp =
+        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Rotation/kP", 3.5);
+    public static final LoggedTunableNumber travelSteerKi =
+        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Rotation/kI", 0.0);
+    public static final LoggedTunableNumber travelSteerKd =
+        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Rotation/kD", 0.05);
+
+    // 2. PRECISION MODE (Scoring/Climbing)
+    public static final LoggedTunableNumber precisionDriveKp =
+        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Translation/kP", 4.0);
+    public static final LoggedTunableNumber precisionDriveKi =
+        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Translation/kI", 0.0);
+    public static final LoggedTunableNumber precisionDriveKd =
+        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Translation/kD", 0.0);
+
+    public static final LoggedTunableNumber precisionSteerKp =
+        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Rotation/kP", 3.0);
+    public static final LoggedTunableNumber precisionSteerKi =
+        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Rotation/kI", 0.0);
+    public static final LoggedTunableNumber precisionSteerKd =
+        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Rotation/kD", 0.0);
   }
 
   // --- PHYSICS SIMULATION CONSTANTS ---

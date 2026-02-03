@@ -56,6 +56,7 @@ public class RobotContainer {
 
   private void configureBindings() {
     drive.setDefaultCommand(new SwerveDefaultCommand(drive, new DefaultDriver()));
+    new DefaultDriver().configureBindings(this);
   }
 
   public Command getAutonomousCommand() {

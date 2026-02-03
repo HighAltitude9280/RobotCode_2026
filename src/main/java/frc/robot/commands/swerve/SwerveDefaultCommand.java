@@ -4,6 +4,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HighAltitudeConstants;
+import frc.robot.HighAltitudeConstants.Swerve;
 import frc.robot.controls.ControlProfile;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import java.util.function.BooleanSupplier;
@@ -14,11 +15,10 @@ public class SwerveDefaultCommand extends Command {
   private final BooleanSupplier isFieldOriented;
 
   // Slew Rate Limiters (Filtros para suavizar el input del joystick)
-  // FIXME: slewRate repetido, incluirlo únicamente en SwerveModule
-  private final SlewRateLimiter xLimiter =
-      new SlewRateLimiter(3.0); // 3 unidades/seg (0 a 1 en 0.33s)
-  private final SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);
-  private final SlewRateLimiter rotLimiter = new SlewRateLimiter(3.0);
+  // FIXME: slewRate repetido, incluirlo únicamente aquí
+  private final SlewRateLimiter xLimiter = new SlewRateLimiter(Swerve.MAX_LINEAR_SPEED_M_S);
+  private final SlewRateLimiter yLimiter = new SlewRateLimiter(Swerve.MAX_LINEAR_SPEED_M_S);
+  private final SlewRateLimiter rotLimiter = new SlewRateLimiter(Swerve.TURN_MAX_VELOCITY_RAD_S);
 
   public SwerveDefaultCommand(
       SwerveDrive drive, ControlProfile controller, BooleanSupplier isFieldOriented) {

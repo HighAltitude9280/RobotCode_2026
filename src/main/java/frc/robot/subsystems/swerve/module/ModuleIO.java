@@ -31,4 +31,12 @@ public interface ModuleIO {
   default void setDriveBrakeMode(boolean enable) {}
 
   default void setTurnBrakeMode(boolean enable) {}
+
+  /**
+   * * Configurates the voltage ramp in Open Loop (Hardware). Protects the mechanics without
+   * affecting the Closed Loop PID of the RIO
+   *
+   * @param timeSeconds Time to go from 0 to 100% voltage.
+   */
+  default void setDriveOpenLoopRampRate(double timeSeconds) {}
 }
