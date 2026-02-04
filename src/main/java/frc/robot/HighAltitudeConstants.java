@@ -50,8 +50,22 @@ public final class HighAltitudeConstants {
   // ... (Otras constantes existentes del Swerve) ...
 
   public static final class Auto {
-    // --- CONSTRAINTS FÍSICOS (Hardcoded - Rara vez se tunean en vivo) ---
 
+    // --- PATHPLANNER PIDS (Suaves para Trayectorias) ---
+    // Separados del Snap-To-Pose para evitar oscilaciones en movimiento
+    public static final double PATHPLANNER_TRANSLATION_KP = 3.0;
+    public static final double PATHPLANNER_TRANSLATION_KI = 0.0;
+    public static final double PATHPLANNER_TRANSLATION_KD = 0.0;
+
+    public static final double PATHPLANNER_ROTATION_KP = 3.5;
+    public static final double PATHPLANNER_ROTATION_KI = 0.0;
+    public static final double PATHPLANNER_ROTATION_KD = 0.0;
+
+    // Constraints Globales para Pathfinding (Teleop)
+    public static final double PATHFINDING_VELOCITY = 3.0; // m/s (Más lento que Auto)
+    public static final double PATHFINDING_ACCEL = 2.0; // m/s²
+
+    // --- CONSTRAINTS FÍSICOS (Hardcoded - Rara vez se tunean en vivo) ---
     // Travel Mode (Rápido)
     public static final double TRAVEL_LINEAR_VELOCITY = 4.5;
     public static final double TRAVEL_LINEAR_ACCELERATION = 3.0;
@@ -102,8 +116,16 @@ public final class HighAltitudeConstants {
 
   // --- PHYSICS SIMULATION CONSTANTS ---
   // Masa del robot (aprox 90lbs)
-  public static final double ROBOT_MASS_KG = 40.82;
+  // --- FÍSICA DEL ROBOT (Full Physics para Choreo) ---
+  public static final double MASS_KG = 40.82; // Estimado (ajustar con báscula)
+  public static final double MOI_KG_M2 = 6.0; // Inercia rotacional estimada
+  public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
+  // --- DIMENSIONES DE COLISIÓN (Safety First - Hopper Expandido) ---
+  // Aunque el Frame es mas chico, le decimos a PathPlanner que somos así de
+  // grandes
+  public static final double ROBOT_COLLISION_LENGTH = Units.inchesToMeters(39.75); // ~1.01m
+  public static final double ROBOT_COLLISION_WIDTH = Units.inchesToMeters(37.5); // ~0.95m
   // Momentos de Inercia (J)
   // Inercia del mecanismo de giro (masa pequeña rotando)
   public static final double MOI_TURN_KG_M2 = 0.004;
@@ -114,7 +136,6 @@ public final class HighAltitudeConstants {
   // SWERVE SUBSYSTEM
   // =============================================================================
   public static final class Swerve {
-
     // --- Physical Dimensions ---
     public static final double TRACK_WIDTH_METERS = Units.inchesToMeters(21.0);
     public static final double WHEEL_BASE_METERS = Units.inchesToMeters(23.0);
