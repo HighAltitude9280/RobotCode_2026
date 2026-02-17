@@ -7,7 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
+            "pathName": "AL1_Path1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AL1_Path2"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AL1_Path3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AL1_Path4"
           }
         }
       ]

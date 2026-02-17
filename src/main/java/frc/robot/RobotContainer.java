@@ -66,7 +66,7 @@ public class RobotContainer {
     new DefaultDriver().configureBindings(this);
   }
 
-  /** Configura todas las rutinas autónomas disponibles en el Dashboard. */
+  /** Configures all the auto routines available on the Dashboard. */
   private void setupAutonomousCommands() {
     // 🛑 REGLA DE ORO POWERHOUSE: El default SIEMPRE es "Do Nothing".
     // Si el Driver olvida seleccionar un auto, el robot se queda quieto.
