@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * Gameplay Assist: Permite al driver controlar la traslación (X/Y) libremente mientras el robot
+ * Teleop Assist: Permite al driver controlar la traslación (X/Y) libremente mientras el robot
  * mantiene automáticamente el frente apuntando a un objetivo (Hub/Feeder). Soporta Live Tuning
  * usando las constantes de Travel Mode.
  */

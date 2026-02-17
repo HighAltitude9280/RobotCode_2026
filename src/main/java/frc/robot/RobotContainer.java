@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.HighAltitudeConstants.Swerve;
@@ -13,9 +14,12 @@ import frc.robot.subsystems.swerve.gyro.GyroIOSim;
 import frc.robot.subsystems.swerve.module.ModuleIO;
 import frc.robot.subsystems.swerve.module.ModuleIOSim;
 import frc.robot.subsystems.swerve.module.ModuleIOTalonSpark;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
   private final SwerveDrive drive;
+
+  private final LoggedDashboardChooser<Command> autoChooser;
 
   public RobotContainer() {
     if (Robot.isReal()) {
@@ -39,6 +43,9 @@ public class RobotContainer {
     }
 
     configureBindings();
+
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    setupAutonomousCommands();
   }
 
   private SwerveModule createRealModule(ModuleConstants constants, int index) {
@@ -59,8 +66,23 @@ public class RobotContainer {
     new DefaultDriver().configureBindings(this);
   }
 
+  /** Configura todas las rutinas autónomas disponibles en el Dashboard. */
+  private void setupAutonomousCommands() {
+    // 🛑 REGLA DE ORO POWERHOUSE: El default SIEMPRE es "Do Nothing".
+    // Si el Driver olvida seleccionar un auto, el robot se queda quieto.
+    // Es mejor perder 15 puntos que estrellarse contra la pared a 5 m/s.
+    autoChooser.addDefaultOption("Do Nothing", Commands.none());
+
+    // 🟢 Cargar Autos de PathPlanner
+    autoChooser.addOption("AL1 (Auto Left 1)", new PathPlannerAuto("AutoLeft1"));
+
+    // Ejemplo de cómo agregar más en el futuro:
+    // autoChooser.addOption("AR1 (Auto Right 1)", new PathPlannerAuto("AR1"));
+    // autoChooser.addOption("Test 2 Meters", new PathPlannerAuto("Test2M"));
+  }
+
   public Command getAutonomousCommand() {
-    return Commands.print("No Auto Configured");
+    return autoChooser.get();
   }
 
   public SwerveDrive getDrive() {

@@ -117,8 +117,8 @@ public final class HighAltitudeConstants {
   // --- PHYSICS SIMULATION CONSTANTS ---
   // Masa del robot (aprox 90lbs)
   // --- FÍSICA DEL ROBOT (Full Physics para Choreo) ---
-  public static final double MASS_KG = 40.82; // Estimado (ajustar con báscula)
-  public static final double MOI_KG_M2 = 6.0; // Inercia rotacional estimada
+  public static final double MASS_KG = 53.5; // Estimado (ajustar con báscula)
+  public static final double MOI_KG_M2 = 4.5; // Inercia rotacional estimada
   public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
   // --- DIMENSIONES DE COLISIÓN (Safety First - Hopper Expandido) ---
@@ -137,9 +137,9 @@ public final class HighAltitudeConstants {
   // =============================================================================
   public static final class Swerve {
     // --- Physical Dimensions ---
-    public static final double TRACK_WIDTH_METERS = Units.inchesToMeters(21.0);
-    public static final double WHEEL_BASE_METERS = Units.inchesToMeters(23.0);
-    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(4.0) / 2.0;
+    public static final double TRACK_WIDTH_METERS = Units.inchesToMeters(19.75);
+    public static final double WHEEL_BASE_METERS = Units.inchesToMeters(23.75);
+    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
     // --- Gearing & Conversions ---
     // Drive: (50/16) * (16/28) * (45/15) approx 5.357
@@ -178,7 +178,7 @@ public final class HighAltitudeConstants {
     public static final double TURN_MAX_ACCELERATION_RAD_S2 = 15.0;
 
     // --- Limits ---
-    public static final double MAX_LINEAR_SPEED_M_S = 4.5;
+    public static final double MAX_LINEAR_SPEED_M_S = 5.5;
     public static final double MAX_ANGULAR_SPEED_RAD_S = 5.0;
 
     // NUEVO: Agregado para SlewRateLimiter en SwerveModule
