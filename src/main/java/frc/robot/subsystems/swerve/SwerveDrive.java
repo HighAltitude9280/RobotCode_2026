@@ -39,10 +39,6 @@ public class SwerveDrive extends SubsystemBase {
     this.gyroIO = gyroIO;
     this.modules = modules;
 
-    for (SwerveModule module : modules) {
-      module.resetEncoder();
-    }
-
     // Inicializar array de cache
     for (int i = 0; i < 4; i++) {
       modulePositions[i] = new SwerveModulePosition();

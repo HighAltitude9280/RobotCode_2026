@@ -198,6 +198,11 @@ public final class HighAltitudeConstants {
         new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-2.837), true);
   }
 
+  //Shooter
+  public static final class Shooter {
+    public static final double MAX_FLYWHEEL_SPEED_RADS_PER_SEC = 397; //3800 RPM
+  }
+
   // =============================================================================
   // VISION SUBSYSTEM
   // =============================================================================

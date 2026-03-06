@@ -48,6 +48,8 @@ public class SwerveModule {
         new SimpleMotorFeedforward(
             HighAltitudeConstants.Swerve.DRIVE_KS, HighAltitudeConstants.Swerve.DRIVE_KV);
 
+    resetEncoder();
+
     // CONFIGURACIÓN DE SEGURIDAD (Opción A)
     // Configuramos la rampa en el hardware al iniciar.
     // 0.25s es un estándar seguro para evitar dañar engranajes MK4i.

@@ -18,6 +18,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
@@ -119,12 +120,13 @@ public class ModuleIOTalonSpark implements ModuleIO {
     inputs.turnAppliedVolts = turnSpark.getAppliedOutput() * turnSpark.getBusVoltage();
     inputs.turnCurrentAmps = turnSpark.getOutputCurrent();
 
-    inputs.turnAbsolutePositionRad = turnAbsolutePos.getValue().in(Radians);
+    inputs.turnAbsolutePositionRad = MathUtil.angleModulus(turnAbsolutePos.getValue().in(Radians));
   }
 
   @Override
   public void resetEncoder() {
-    double absolutePositionRot = turnCanCoder.getAbsolutePosition().getValue().in(Rotations);
+    double absolutePositionRot =
+        turnCanCoder.getAbsolutePosition().waitForUpdate(0.5).getValue().in(Rotations);
     turnRelativeEncoder.setPosition(absolutePositionRot * TURN_GEAR_RATIO);
   }
 

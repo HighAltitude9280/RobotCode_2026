@@ -48,6 +48,11 @@ public class DefaultDriver implements ControlProfile {
   }
 
   @Override
+  public double getShooterTrigger() {
+    return MathUtil.applyDeadband(controller.getRightTriggerAxis(), DEADBAND);
+  }
+
+  @Override
   public void configureBindings(RobotContainer container) {
 
     // --- DRIVER ASSISTS ---
