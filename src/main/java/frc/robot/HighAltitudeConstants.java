@@ -169,7 +169,7 @@ public final class HighAltitudeConstants {
     public static final double DRIVE_KV = 2.05;
 
     // --- TURN CONTROL (Profiled PID) ---
-    public static final double TURN_KP = 0.8;
+    public static final double TURN_KP = 1.5;
     public static final double TURN_KI = 0.0;
     public static final double TURN_KD = 0.075;
 

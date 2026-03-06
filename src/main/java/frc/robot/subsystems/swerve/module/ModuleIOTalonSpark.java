@@ -85,10 +85,6 @@ public class ModuleIOTalonSpark implements ModuleIO {
     cancoderConfig.MagnetSensor.MagnetOffset = angleOffset.getRotations();
     turnCanCoder.getConfigurator().apply(cancoderConfig);
 
-    // Set up encoders
-    double absolutePositionRotations = turnCanCoder.getAbsolutePosition().getValueAsDouble();
-    turnRelativeEncoder.setPosition(absolutePositionRotations * TURN_GEAR_RATIO);
-
     // Signal Setup
     drivePosition = driveTalon.getPosition();
     driveVelocity = driveTalon.getVelocity();
@@ -99,7 +95,7 @@ public class ModuleIOTalonSpark implements ModuleIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp);
-    BaseStatusSignal.setUpdateFrequencyForAll(250.0, drivePosition, turnAbsolutePos);
+    BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnAbsolutePos);
   }
 
   // ... (updateInputs, setDriveVoltage, setTurnVoltage igual que antes) ...
@@ -125,6 +121,12 @@ public class ModuleIOTalonSpark implements ModuleIO {
 
     inputs.turnAbsolutePositionRad = turnAbsolutePos.getValue().in(Radians);
   }
+
+  public void resetEncoder (){
+    double absolutePositionRot = turnCanCoder.getAbsolutePosition().getValue().in(Rotations);
+    turnRelativeEncoder.setPosition(absolutePositionRot * TURN_GEAR_RATIO);
+  }
+  
 
   @Override
   public void setDriveVoltage(double volts) {

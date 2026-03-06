@@ -58,6 +58,10 @@ public class SwerveModule {
     io.updateInputs(inputs);
     Logger.processInputs("Drive/Module" + index, inputs);
   }
+  
+  public void resetEncoder() {
+    io.resetEncoder();
+  }
 
   public void runSetpoint(SwerveModuleState state) {
     // 1. OPTIMIZACIÓN (WPILib 2026 Standard)

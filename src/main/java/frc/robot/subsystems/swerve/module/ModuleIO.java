@@ -39,4 +39,6 @@ public interface ModuleIO {
    * @param timeSeconds Time to go from 0 to 100% voltage.
    */
   default void setDriveOpenLoopRampRate(double timeSeconds) {}
+
+  default void resetEncoder (){}
 }
