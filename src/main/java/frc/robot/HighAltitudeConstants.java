@@ -189,13 +189,13 @@ public final class HighAltitudeConstants {
         int driveID, int turnID, int cancoderID, Rotation2d offset, boolean driveInverted) {}
 
     public static final ModuleConstants MOD_FL =
-        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(-0.184), false);
+        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(0.030), false);
     public static final ModuleConstants MOD_FR =
-        new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(-2.440), true);
+        new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(0.387), false);
     public static final ModuleConstants MOD_BL =
-        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(0.775), false);
+        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-0.124), false);
     public static final ModuleConstants MOD_BR =
-        new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(2.396), true);
+        new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-0.375), false);
   }
 
   // Shooter
