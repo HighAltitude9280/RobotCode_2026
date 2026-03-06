@@ -169,7 +169,7 @@ public final class HighAltitudeConstants {
     public static final double DRIVE_KV = 2.05;
 
     // --- TURN CONTROL (Profiled PID) ---
-    public static final double TURN_KP = 0.5;
+    public static final double TURN_KP = 2.0;
     public static final double TURN_KI = 0.0;
     public static final double TURN_KD = 0.0;
 
@@ -189,18 +189,22 @@ public final class HighAltitudeConstants {
         int driveID, int turnID, int cancoderID, Rotation2d offset, boolean driveInverted) {}
 
     public static final ModuleConstants MOD_FL =
-        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(2.428), false);
+        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(-0.184), false);
     public static final ModuleConstants MOD_FR =
-        new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(-2.621), true);
+        new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(-2.440), true);
     public static final ModuleConstants MOD_BL =
-        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-1.817), false);
+        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(0.775), false);
     public static final ModuleConstants MOD_BR =
-        new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-2.837), true);
+        new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(2.396), true);
   }
 
-  //Shooter
+  // Shooter
   public static final class Shooter {
-    public static final double MAX_FLYWHEEL_SPEED_RADS_PER_SEC = 397; //3800 RPM
+    public static final double MAX_FLYWHEEL_SPEED_RADS_PER_SEC = 397; // 3800 RPM
+
+    // Motor Ports
+    public static final int ShooterRight = 62;
+    public static final int ShooterLeft = 61;
   }
 
   // =============================================================================

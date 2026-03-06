@@ -67,7 +67,7 @@ public class SwerveModule {
 
   public void runSetpoint(SwerveModuleState state) {
     // 1. OPTIMIZACIÓN (WPILib 2026 Standard)
-    Rotation2d currentAngle = new Rotation2d(inputs.turnAbsolutePositionRad);
+    Rotation2d currentAngle = new Rotation2d(inputs.turnPositionRad);
 
     // CORRECCIÓN: El método optimize ahora modifica 'state' directamente y regresa
     // void.

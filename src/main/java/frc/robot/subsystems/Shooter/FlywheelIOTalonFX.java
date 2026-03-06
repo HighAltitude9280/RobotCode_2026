@@ -44,7 +44,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     leaderConfig.CurrentLimits.StatorCurrentLimit = 80.0;
-    leaderConfig.Slot0.kP = 0.0;
+    leaderConfig.Slot0.kP = 0.5;
     leaderConfig.Slot0.kD = 0.0;
     leaderConfig.Slot0.kV = 0.0;
     leader.getConfigurator().apply(leaderConfig);
@@ -73,9 +73,14 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
-        position, velocity, appliedVolts,
-        supplyCurrent, torqueCurrent, temp,
-        followerSupplyCurrent, followerTemp);
+        position,
+        velocity,
+        appliedVolts,
+        supplyCurrent,
+        torqueCurrent,
+        temp,
+        followerSupplyCurrent,
+        followerTemp);
   }
 
   @Override
@@ -101,10 +106,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   public void applyOutputs(FlywheelIOOutputs outputs) {
     switch (outputs.mode) {
       case VELOCITY -> {
-        var slot0 = new com.ctre.phoenix6.configs.Slot0Configs()
-            .withKP(outputs.kP)
-            .withKD(outputs.kD)
-            .withKV(0.0);
+        var slot0 =
+            new com.ctre.phoenix6.configs.Slot0Configs()
+                .withKP(outputs.kP)
+                .withKD(outputs.kD)
+                .withKV(0.0);
         leader.getConfigurator().apply(slot0);
         leader.setControl(
             velocityRequest

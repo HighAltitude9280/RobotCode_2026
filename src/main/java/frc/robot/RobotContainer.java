@@ -5,8 +5,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.HighAltitudeConstants.Swerve;
 import frc.robot.HighAltitudeConstants.Swerve.ModuleConstants;
+import frc.robot.commands.shooter.FlywheelDefaultCommand;
 import frc.robot.commands.swerve.SwerveDefaultCommand;
 import frc.robot.controls.profiles.DefaultDriver;
+import frc.robot.subsystems.Shooter.Flywheel;
+import frc.robot.subsystems.Shooter.FlywheelIO;
+import frc.robot.subsystems.Shooter.FlywheelIOTalonFX;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwerveModule;
 import frc.robot.subsystems.swerve.gyro.GyroIONavX;
@@ -18,6 +22,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
   private final SwerveDrive drive;
+  private final Flywheel flywheel;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -31,6 +36,12 @@ public class RobotContainer {
               createRealModule(Swerve.MOD_FR, 1),
               createRealModule(Swerve.MOD_BL, 2),
               createRealModule(Swerve.MOD_BR, 3));
+
+      flywheel =
+          new Flywheel(
+              new FlywheelIOTalonFX(
+                  HighAltitudeConstants.Shooter.ShooterRight,
+                  HighAltitudeConstants.Shooter.ShooterLeft));
     } else {
       // Simulation
       drive =
@@ -40,6 +51,8 @@ public class RobotContainer {
               new SwerveModule(new ModuleIOSim(), 1),
               new SwerveModule(new ModuleIOSim(), 2),
               new SwerveModule(new ModuleIOSim(), 3));
+
+      flywheel = new Flywheel(new FlywheelIO() {});
     }
 
     configureBindings();
@@ -63,6 +76,7 @@ public class RobotContainer {
 
   private void configureBindings() {
     drive.setDefaultCommand(new SwerveDefaultCommand(drive, new DefaultDriver()));
+    flywheel.setDefaultCommand(new FlywheelDefaultCommand(flywheel, new DefaultDriver()));
     new DefaultDriver().configureBindings(this);
   }
 
@@ -87,5 +101,9 @@ public class RobotContainer {
 
   public SwerveDrive getDrive() {
     return drive;
+  }
+
+  public Flywheel getFlywheel() {
+    return flywheel;
   }
 }
