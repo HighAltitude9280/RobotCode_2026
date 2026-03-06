@@ -43,7 +43,6 @@ public class SwerveDrive extends SubsystemBase {
       module.resetEncoder();
     }
 
-
     // Inicializar array de cache
     for (int i = 0; i < 4; i++) {
       modulePositions[i] = new SwerveModulePosition();

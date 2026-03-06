@@ -122,11 +122,11 @@ public class ModuleIOTalonSpark implements ModuleIO {
     inputs.turnAbsolutePositionRad = turnAbsolutePos.getValue().in(Radians);
   }
 
-  public void resetEncoder (){
+  @Override
+  public void resetEncoder() {
     double absolutePositionRot = turnCanCoder.getAbsolutePosition().getValue().in(Rotations);
     turnRelativeEncoder.setPosition(absolutePositionRot * TURN_GEAR_RATIO);
   }
-  
 
   @Override
   public void setDriveVoltage(double volts) {

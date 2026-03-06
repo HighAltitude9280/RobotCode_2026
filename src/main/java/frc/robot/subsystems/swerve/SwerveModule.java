@@ -58,7 +58,7 @@ public class SwerveModule {
     io.updateInputs(inputs);
     Logger.processInputs("Drive/Module" + index, inputs);
   }
-  
+
   public void resetEncoder() {
     io.resetEncoder();
   }
@@ -82,8 +82,7 @@ public class SwerveModule {
     double targetSpeed = optimizedState.speedMetersPerSecond * Math.max(0.0, cosineScale);
 
     // 3. CONTROL LAZO CERRADO
-    double turnVolts =
-        turnPID.calculate(inputs.turnAbsolutePositionRad, optimizedState.angle.getRadians());
+    double turnVolts = turnPID.calculate(inputs.turnPositionRad, optimizedState.angle.getRadians());
 
     double currentVelocity =
         inputs.driveVelocityRadPerSec * HighAltitudeConstants.Swerve.WHEEL_RADIUS_METERS;

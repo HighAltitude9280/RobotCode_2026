@@ -40,5 +40,5 @@ public interface ModuleIO {
    */
   default void setDriveOpenLoopRampRate(double timeSeconds) {}
 
-  default void resetEncoder (){}
+  default void resetEncoder() {}
 }
