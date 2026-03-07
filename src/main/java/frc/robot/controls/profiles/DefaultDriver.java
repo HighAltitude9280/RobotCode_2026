@@ -36,7 +36,7 @@ public class DefaultDriver implements ControlProfile {
   @Override
   public double getDriveStrafe() {
     // Joystick X positivo es "derecha". Invertimos para que + sea izquierda (NWU).
-    double raw = -controller.getLeftX();
+    double raw = controller.getLeftX();
     return processAxis(raw);
   }
 

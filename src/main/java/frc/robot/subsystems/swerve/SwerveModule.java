@@ -112,13 +112,13 @@ public class SwerveModule {
   public SwerveModulePosition getPosition() {
     double distanceMeters =
         inputs.drivePositionRad * HighAltitudeConstants.Swerve.WHEEL_RADIUS_METERS;
-    return new SwerveModulePosition(distanceMeters, new Rotation2d(inputs.turnAbsolutePositionRad));
+    return new SwerveModulePosition(distanceMeters, new Rotation2d(inputs.turnPositionRad));
   }
 
   public SwerveModuleState getState() {
     double velocityMeters =
         inputs.driveVelocityRadPerSec * HighAltitudeConstants.Swerve.WHEEL_RADIUS_METERS;
-    return new SwerveModuleState(velocityMeters, new Rotation2d(inputs.turnAbsolutePositionRad));
+    return new SwerveModuleState(velocityMeters, new Rotation2d(inputs.turnPositionRad));
   }
 
   public void stop() {

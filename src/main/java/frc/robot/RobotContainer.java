@@ -75,9 +75,10 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    drive.setDefaultCommand(new SwerveDefaultCommand(drive, new DefaultDriver()));
-    flywheel.setDefaultCommand(new FlywheelDefaultCommand(flywheel, new DefaultDriver()));
-    new DefaultDriver().configureBindings(this);
+    DefaultDriver driver = new DefaultDriver();
+    drive.setDefaultCommand(new SwerveDefaultCommand(drive, driver));
+    flywheel.setDefaultCommand(new FlywheelDefaultCommand(flywheel, driver));
+    driver.configureBindings(this);
   }
 
   /** Configures all the auto routines available on the Dashboard. */

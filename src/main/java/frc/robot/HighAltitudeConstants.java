@@ -169,7 +169,7 @@ public final class HighAltitudeConstants {
     public static final double DRIVE_KV = 2.05;
 
     // --- TURN CONTROL (Profiled PID) ---
-    public static final double TURN_KP = 2.0;
+    public static final double TURN_KP = 5.0;
     public static final double TURN_KI = 0.0;
     public static final double TURN_KD = 0.0;
 
@@ -178,7 +178,7 @@ public final class HighAltitudeConstants {
     public static final double TURN_MAX_ACCELERATION_RAD_S2 = 15.0;
 
     // --- Limits ---
-    public static final double MAX_LINEAR_SPEED_M_S = 5.5;
+    public static final double MAX_LINEAR_SPEED_M_S = 0.5;
     public static final double MAX_ANGULAR_SPEED_RAD_S = 5.0;
 
     // NUEVO: Agregado para SlewRateLimiter en SwerveModule
@@ -189,11 +189,11 @@ public final class HighAltitudeConstants {
         int driveID, int turnID, int cancoderID, Rotation2d offset, boolean driveInverted) {}
 
     public static final ModuleConstants MOD_FL =
-        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(0.030), false);
+        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(0.030), true);
     public static final ModuleConstants MOD_FR =
         new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(0.387), false);
     public static final ModuleConstants MOD_BL =
-        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-0.124), false);
+        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-0.124), true);
     public static final ModuleConstants MOD_BR =
         new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-0.375), false);
   }

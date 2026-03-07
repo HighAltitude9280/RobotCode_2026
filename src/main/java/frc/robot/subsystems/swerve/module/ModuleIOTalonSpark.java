@@ -113,14 +113,15 @@ public class ModuleIOTalonSpark implements ModuleIO {
     inputs.driveTempCelcius = driveTemp.getValue().in(Celsius);
 
     inputs.turnPositionRad =
-        Units.rotationsToRadians(turnRelativeEncoder.getPosition()) / TURN_GEAR_RATIO;
+        Units.rotationsToRadians(turnRelativeEncoder.getPosition() / TURN_GEAR_RATIO);
     inputs.turnVelocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(turnRelativeEncoder.getVelocity())
-            / TURN_GEAR_RATIO;
+        Units.rotationsPerMinuteToRadiansPerSecond(
+            turnRelativeEncoder.getVelocity() / TURN_GEAR_RATIO);
     inputs.turnAppliedVolts = turnSpark.getAppliedOutput() * turnSpark.getBusVoltage();
     inputs.turnCurrentAmps = turnSpark.getOutputCurrent();
 
-    inputs.turnAbsolutePositionRad = MathUtil.angleModulus(turnAbsolutePos.getValue().in(Radians));
+    inputs.turnAbsolutePositionRad =
+        MathUtil.angleModulus(Units.rotationsToRadians(turnAbsolutePos.getValue().in(Rotations)));
   }
 
   @Override
