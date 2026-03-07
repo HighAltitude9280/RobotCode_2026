@@ -3,7 +3,7 @@ package frc.robot.commands.shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HighAltitudeConstants;
 import frc.robot.controls.ControlProfile;
-import frc.robot.subsystems.Shooter.Flywheel;
+import frc.robot.subsystems.shooter.Flywheel;
 
 public class FlywheelDefaultCommand extends Command {
   private final Flywheel flywheel;

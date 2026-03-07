@@ -1,7 +1,7 @@
-package frc.robot.subsystems.Shooter;
+package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Shooter.FlywheelIO.FlywheelIOOutputs;
+import frc.robot.subsystems.shooter.FlywheelIO.FlywheelIOOutputs;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
