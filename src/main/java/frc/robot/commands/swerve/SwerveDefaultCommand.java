@@ -74,13 +74,8 @@ public class SwerveDefaultCommand extends Command {
       speeds = new ChassisSpeeds(xMetersPerSec, yMetersPerSec, rotRadPerSec);
     }
 
-    // 5. "Powerhouse" Discretization
-    // Corrige el 'skew' cuando el robot rota y se traslada al mismo tiempo.
-    // Se asume un timestep de 20ms (0.02s)
-    ChassisSpeeds discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-
     // 6. Enviar al Drive
-    drive.runVelocity(discretizedSpeeds);
+    drive.runVelocity(speeds);
   }
 
   @Override

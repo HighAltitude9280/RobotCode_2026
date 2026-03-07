@@ -44,7 +44,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     leaderConfig.CurrentLimits.StatorCurrentLimit = 80.0;
-    leaderConfig.Slot0.kP = 0.5;
+    leaderConfig.Slot0.kP = 0.0;
     leaderConfig.Slot0.kD = 0.0;
     leaderConfig.Slot0.kV = 0.0;
     leader.getConfigurator().apply(leaderConfig);

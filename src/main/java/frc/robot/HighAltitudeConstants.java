@@ -178,7 +178,7 @@ public final class HighAltitudeConstants {
     public static final double TURN_MAX_ACCELERATION_RAD_S2 = 15.0;
 
     // --- Limits ---
-    public static final double MAX_LINEAR_SPEED_M_S = 0.5;
+    public static final double MAX_LINEAR_SPEED_M_S = 1.5;
     public static final double MAX_ANGULAR_SPEED_RAD_S = 5.0;
 
     // NUEVO: Agregado para SlewRateLimiter en SwerveModule
@@ -203,8 +203,12 @@ public final class HighAltitudeConstants {
     public static final double MAX_FLYWHEEL_SPEED_RADS_PER_SEC = 397; // 3800 RPM
 
     // Motor Ports
-    public static final int ShooterRight = 62;
-    public static final int ShooterLeft = 61;
+    public static final int ShooterRight = 61;
+    public static final int ShooterLeft = 62;
+
+    // PD Control
+    public static final double ShooterkP = 0.4;
+    public static final double ShooterkD = 0.0;
   }
 
   // =============================================================================

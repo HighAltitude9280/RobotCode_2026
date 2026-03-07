@@ -42,6 +42,8 @@ public class RobotContainer {
               new FlywheelIOTalonFX(
                   HighAltitudeConstants.Shooter.ShooterRight,
                   HighAltitudeConstants.Shooter.ShooterLeft));
+      flywheel.setGains(
+          HighAltitudeConstants.Shooter.ShooterkP, HighAltitudeConstants.Shooter.ShooterkD);
     } else {
       // Simulation
       drive =
