@@ -21,7 +21,7 @@ public class Flywheel extends SubsystemBase {
 
     io.applyOutputs(outputs);
     Logger.recordOutput("Flywheel/Mode", outputs.mode.toString());
-    Logger.recordOutput("Flywheel/", outputs.velocityRadsPerSec);
+    Logger.recordOutput("Flywheel/TargetVelocityRadsPerSec", outputs.velocityRadsPerSec);
   }
 
   // API
@@ -34,15 +34,6 @@ public class Flywheel extends SubsystemBase {
   public void coast() {
     outputs.mode = FlywheelIO.FlywheelIOOutputMode.COAST;
     outputs.velocityRadsPerSec = 0.0;
-  }
-
-  public void setGains(double kP, double kD) {
-    outputs.kP = kP;
-    outputs.kD = kD;
-  }
-
-  public void setFeedforward(double feedforward) {
-    outputs.feedforward = feedforward;
   }
 
   // Getters

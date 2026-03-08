@@ -17,11 +17,6 @@ public class PivotIOSparkMax implements PivotIO {
   private final RelativeEncoder encoder;
   private final SparkClosedLoopController pid;
 
-  private static final double PIVOT_RETRACTED_ROT =
-      HighAltitudeConstants.Pivot.RETRACT_POS * HighAltitudeConstants.Pivot.GEAR_RATIO;
-  private static final double PIVOT_EXPANDED_ROT =
-      HighAltitudeConstants.Pivot.EXTENDED_POS * HighAltitudeConstants.Pivot.GEAR_RATIO;
-
   public PivotIOSparkMax(int id) {
     spark = new SparkMax(id, MotorType.kBrushless);
     encoder = spark.getEncoder();
@@ -46,9 +41,13 @@ public class PivotIOSparkMax implements PivotIO {
     config
         .softLimit
         .forwardSoftLimitEnabled(true)
-        .forwardSoftLimit((float) PIVOT_RETRACTED_ROT)
+        .forwardSoftLimit(
+            (float) HighAltitudeConstants.Pivot.RETRACT_POS
+                * HighAltitudeConstants.Pivot.GEAR_RATIO)
         .reverseSoftLimitEnabled(true)
-        .reverseSoftLimit((float) PIVOT_EXPANDED_ROT);
+        .reverseSoftLimit(
+            (float) HighAltitudeConstants.Pivot.EXTENDED_POS
+                * HighAltitudeConstants.Pivot.GEAR_RATIO);
 
     spark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

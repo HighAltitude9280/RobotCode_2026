@@ -11,8 +11,10 @@ public class Pivot extends SubsystemBase {
   private final PivotIOInputsAutoLogged inputs = new PivotIOInputsAutoLogged();
   private final PivotIOOutputs outputs = new PivotIOOutputs();
 
-  private static final double PIVOT_RETRACTED_ROT = 0.0;
-  private static final double PIVOT_EXPANDED_ROT = -0.25 * HighAltitudeConstants.Pivot.GEAR_RATIO;
+  private static final double PIVOT_RETRACTED_ROT =
+      HighAltitudeConstants.Pivot.RETRACT_POS * HighAltitudeConstants.Pivot.GEAR_RATIO;
+  private static final double PIVOT_EXPANDED_ROT =
+      HighAltitudeConstants.Pivot.EXTENDED_POS * HighAltitudeConstants.Pivot.GEAR_RATIO;
 
   public Pivot(PivotIO io) {
     this.io = io;

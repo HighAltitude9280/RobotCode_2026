@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.*;
+import frc.robot.HighAltitudeConstants;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
 
@@ -44,9 +45,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     leaderConfig.CurrentLimits.StatorCurrentLimit = 80.0;
-    leaderConfig.Slot0.kP = 0.0;
-    leaderConfig.Slot0.kD = 0.0;
-    leaderConfig.Slot0.kV = 0.0;
+    leaderConfig.Slot0.kP = HighAltitudeConstants.Shooter.KP;
+    leaderConfig.Slot0.kD = HighAltitudeConstants.Shooter.KD;
+    leaderConfig.Slot0.kV = HighAltitudeConstants.Shooter.KV;
     leader.getConfigurator().apply(leaderConfig);
 
     // --- Follower config ---

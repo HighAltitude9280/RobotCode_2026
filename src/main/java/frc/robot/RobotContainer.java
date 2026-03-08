@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.HighAltitudeConstants.Swerve;
 import frc.robot.HighAltitudeConstants.Swerve.ModuleConstants;
-import frc.robot.commands.pivot.PivotDefaultCommand;
 import frc.robot.commands.swerve.SwerveDefaultCommand;
 import frc.robot.controls.profiles.DefaultDriver;
 import frc.robot.subsystems.indexer.Indexer;
@@ -54,8 +53,6 @@ public class RobotContainer {
               new FlywheelIOTalonFX(
                   HighAltitudeConstants.Shooter.ShooterRight,
                   HighAltitudeConstants.Shooter.ShooterLeft));
-      flywheel.setGains(
-          HighAltitudeConstants.Shooter.ShooterkP, HighAltitudeConstants.Shooter.ShooterkD);
 
       intakePivot = new Pivot(new PivotIOSparkMax(HighAltitudeConstants.Pivot.PIVOTMOTOR));
 
@@ -104,7 +101,6 @@ public class RobotContainer {
     DefaultDriver driver = new DefaultDriver();
     drive.setDefaultCommand(new SwerveDefaultCommand(drive, driver));
     flywheel.setDefaultCommand(Commands.run(() -> flywheel.coast(), flywheel));
-    intakePivot.setDefaultCommand(new PivotDefaultCommand(intakePivot));
     driver.configureBindings(this);
   }
 

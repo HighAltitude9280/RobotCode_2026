@@ -1,6 +1,7 @@
 package frc.robot.commands.pivot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.HighAltitudeConstants;
 import frc.robot.subsystems.intake.pivot.Pivot;
 
 public class PivotRetractCommand extends Command {
@@ -12,7 +13,12 @@ public class PivotRetractCommand extends Command {
   }
 
   @Override
-  public void execute() {
-    pivot.retract();
+  public void initialize() {
+    pivot.retract(); // Set target once, not every loop
+  }
+
+  @Override
+  public boolean isFinished() {
+    return pivot.atSetpoint(HighAltitudeConstants.Pivot.GEAR_RATIO * 0.01);
   }
 }
