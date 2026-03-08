@@ -11,6 +11,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.FieldConstants;
 import frc.robot.HighAltitudeConstants;
 import frc.robot.RobotContainer;
+import frc.robot.commands.indexer.IndexerIntakeCommand;
+import frc.robot.commands.intake.IntakeAbsorbCommand;
+import frc.robot.commands.pivot.PivotExpandCommand;
+import frc.robot.commands.pivot.PivotRetractCommand;
+import frc.robot.commands.shooter.FeederPreShootCommand;
+import frc.robot.commands.shooter.FlywheelShootCommand;
 import frc.robot.commands.swerve.DriveToPose;
 import frc.robot.commands.swerve.SwerveHeadingLockCommand;
 import frc.robot.controls.ControlProfile;
@@ -48,13 +54,18 @@ public class DefaultDriver implements ControlProfile {
   }
 
   @Override
-  public double getShooterTrigger() {
-    return (controller.getRightTriggerAxis());
-  }
-
-  @Override
   public void configureBindings(RobotContainer container) {
 
+    controller.rightBumper().whileTrue(new IntakeAbsorbCommand(container.getIntake()));
+
+    controller.leftBumper().whileTrue(new FeederPreShootCommand(container.getFeeder()));
+
+    controller.leftBumper().whileTrue(new IndexerIntakeCommand(container.getIndexer()));
+
+    controller.povDown().onTrue(new PivotExpandCommand(container.getPivot()));
+    controller.povUp().onTrue(new PivotRetractCommand(container.getPivot()));
+
+    controller.rightTrigger().whileTrue(new FlywheelShootCommand(container.getFlywheel()));
     // --- DRIVER ASSISTS ---
 
     // Botón X: DriveToPose (PID Local) - Ajuste Fino

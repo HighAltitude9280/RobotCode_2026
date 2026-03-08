@@ -79,6 +79,7 @@ public class ModuleIOTalonSpark implements ModuleIO {
     SparkMaxConfig turnConfig = new SparkMaxConfig();
     turnConfig.idleMode(IdleMode.kBrake);
     turnConfig.smartCurrentLimit(30);
+    turnConfig.inverted(true);
     turnSpark.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     turnCanCoder = new CANcoder(cancoderID, "rio");

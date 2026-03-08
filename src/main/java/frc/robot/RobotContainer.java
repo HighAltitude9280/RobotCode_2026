@@ -5,9 +5,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.HighAltitudeConstants.Swerve;
 import frc.robot.HighAltitudeConstants.Swerve.ModuleConstants;
-import frc.robot.commands.shooter.FlywheelDefaultCommand;
+import frc.robot.commands.pivot.PivotDefaultCommand;
 import frc.robot.commands.swerve.SwerveDefaultCommand;
 import frc.robot.controls.profiles.DefaultDriver;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.pivot.Pivot;
+import frc.robot.subsystems.intake.pivot.PivotIO;
+import frc.robot.subsystems.intake.pivot.PivotIOSparkMax;
+import frc.robot.subsystems.rollers.RollerIO;
+import frc.robot.subsystems.rollers.RollerIOTalonFX;
+import frc.robot.subsystems.shooter.Feeder;
 import frc.robot.subsystems.shooter.Flywheel;
 import frc.robot.subsystems.shooter.FlywheelIO;
 import frc.robot.subsystems.shooter.FlywheelIOTalonFX;
@@ -23,6 +31,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   private final SwerveDrive drive;
   private final Flywheel flywheel;
+  private final Pivot intakePivot;
+  private final Indexer indexer;
+  private final Intake intake;
+  private final Feeder feeder;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -44,6 +56,14 @@ public class RobotContainer {
                   HighAltitudeConstants.Shooter.ShooterLeft));
       flywheel.setGains(
           HighAltitudeConstants.Shooter.ShooterkP, HighAltitudeConstants.Shooter.ShooterkD);
+
+      intakePivot = new Pivot(new PivotIOSparkMax(HighAltitudeConstants.Pivot.PIVOTMOTOR));
+
+      indexer = new Indexer(new RollerIOTalonFX(HighAltitudeConstants.Indexer.INDEXERMOTOR));
+
+      intake = new Intake(new RollerIOTalonFX(HighAltitudeConstants.Intake.INTAKEMOTOR));
+
+      feeder = new Feeder(new RollerIOTalonFX(HighAltitudeConstants.Feeder.FEEDERMOTOR));
     } else {
       // Simulation
       drive =
@@ -55,6 +75,10 @@ public class RobotContainer {
               new SwerveModule(new ModuleIOSim(), 3));
 
       flywheel = new Flywheel(new FlywheelIO() {});
+      intakePivot = new Pivot(new PivotIO() {});
+      indexer = new Indexer(new RollerIO() {});
+      intake = new Intake(new RollerIO() {});
+      feeder = new Feeder(new RollerIO() {});
     }
 
     configureBindings();
@@ -79,7 +103,8 @@ public class RobotContainer {
   private void configureBindings() {
     DefaultDriver driver = new DefaultDriver();
     drive.setDefaultCommand(new SwerveDefaultCommand(drive, driver));
-    flywheel.setDefaultCommand(new FlywheelDefaultCommand(flywheel, driver));
+    flywheel.setDefaultCommand(Commands.run(() -> flywheel.coast(), flywheel));
+    intakePivot.setDefaultCommand(new PivotDefaultCommand(intakePivot));
     driver.configureBindings(this);
   }
 
@@ -108,5 +133,21 @@ public class RobotContainer {
 
   public Flywheel getFlywheel() {
     return flywheel;
+  }
+
+  public Pivot getPivot() {
+    return intakePivot;
+  }
+
+  public Indexer getIndexer() {
+    return indexer;
+  }
+
+  public Intake getIntake() {
+    return intake;
+  }
+
+  public Feeder getFeeder() {
+    return feeder;
   }
 }

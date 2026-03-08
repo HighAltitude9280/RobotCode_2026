@@ -25,6 +25,14 @@ public interface ControlProfile {
     return 0.0;
   }
 
+  default boolean getPivotExpand() {
+    return false;
+  }
+
+  default boolean getPivotRetract() {
+    return false;
+  }
+
   /**
    * Configura los botones específicos de este perfil.
    *

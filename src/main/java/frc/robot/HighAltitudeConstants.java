@@ -169,7 +169,7 @@ public final class HighAltitudeConstants {
     public static final double DRIVE_KV = 2.05;
 
     // --- TURN CONTROL (Profiled PID) ---
-    public static final double TURN_KP = 5.0;
+    public static final double TURN_KP = 5.0; // /5
     public static final double TURN_KI = 0.0;
     public static final double TURN_KD = 0.0;
 
@@ -189,26 +189,53 @@ public final class HighAltitudeConstants {
         int driveID, int turnID, int cancoderID, Rotation2d offset, boolean driveInverted) {}
 
     public static final ModuleConstants MOD_FL =
-        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(0.030), true);
+        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(0.030), false);
     public static final ModuleConstants MOD_FR =
-        new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(0.387), false);
+        new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(0.387), true);
     public static final ModuleConstants MOD_BL =
-        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-0.124), true);
+        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-0.124), false);
     public static final ModuleConstants MOD_BR =
-        new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-0.375), false);
+        new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-0.375), true);
   }
 
   // Shooter
   public static final class Shooter {
-    public static final double MAX_FLYWHEEL_SPEED_RADS_PER_SEC = 397; // 3800 RPM
+    public static final double MAX_FLYWHEEL_SPEED_RADS_PER_SEC = 460;
 
     // Motor Ports
     public static final int ShooterRight = 61;
     public static final int ShooterLeft = 62;
 
     // PD Control
-    public static final double ShooterkP = 0.4;
+    public static final double ShooterkP = 0.7;
     public static final double ShooterkD = 0.0;
+  }
+
+  // Pivot
+  public static final class Pivot {
+    public static final double GEAR_RATIO = 45.83;
+    public static final double RETRACT_POS = 0;
+    public static final double EXTENDED_POS = 0.25;
+
+    public static final int PIVOTMOTOR = 41;
+  }
+
+  // Indexer
+  public static final class Indexer {
+    public static final double INDEXER_VOLTAGE = 0.5 * 12;
+    public static final int INDEXERMOTOR = 51;
+  }
+
+  // Intake
+  public static final class Intake {
+    public static final double INTAKE_VOLTAGE = 0.5 * 12;
+    public static final int INTAKEMOTOR = 42;
+  }
+
+  // Feeder
+  public static final class Feeder {
+    public static final double FEEDER_VOLTAGE = 0.4 * 12;
+    public static final int FEEDERMOTOR = 52;
   }
 
   // =============================================================================

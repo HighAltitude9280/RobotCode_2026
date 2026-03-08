@@ -50,6 +50,10 @@ public class SwerveModule {
 
     resetEncoder();
 
+    io.updateInputs(inputs);
+
+    turnPID.reset(inputs.turnPositionRad);
+
     // CONFIGURACIÓN DE SEGURIDAD (Opción A)
     // Configuramos la rampa en el hardware al iniciar.
     // 0.25s es un estándar seguro para evitar dañar engranajes MK4i.

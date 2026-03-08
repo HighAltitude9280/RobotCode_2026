@@ -16,8 +16,8 @@ public class GyroIONavX implements GyroIO {
     inputs.connected = navx.isConnected();
     // NavX is CW positive by default, WPILib/AK expects CCW positive (NWU).
     // Check standard NavX usage, usually requires negation.
-    inputs.yawPositionRad = -Units.degreesToRadians(navx.getAngle());
-    inputs.yawVelocityRadPerSec = -Units.degreesToRadians(navx.getRate());
+    inputs.yawPositionRad = Units.degreesToRadians(navx.getAngle());
+    inputs.yawVelocityRadPerSec = Units.degreesToRadians(navx.getRate());
   }
 
   @Override
