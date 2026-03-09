@@ -18,10 +18,11 @@ public class DefaultSwerveDriveNew extends Command {
   private final BooleanSupplier fieldOrientedSupplier;
 
   /**
-   * Comando por defecto para el Swerve Drive optimizado para 2026.
-   * Implementa curva exponencial agresiva para los Krakens, compensación de Skew
-   * mediante discretización y compatibilidad estricta con AdvantageKit
-   * (Replay-safe).
+   * Comando por defecto para el Swerve Drive optimizado para 2026. Implementa
+   * curva exponencial
+   * agresiva para los Krakens, compensación de Skew mediante discretización y
+   * compatibilidad
+   * estricta con AdvantageKit (Replay-safe).
    */
   public DefaultSwerveDriveNew(
       SwerveDrive swerve,
@@ -71,8 +72,7 @@ public class DefaultSwerveDriveNew extends Command {
     // 5. Transformación Field-Oriented vs Robot-Oriented
     ChassisSpeeds desiredSpeeds;
     if (isFieldOriented) {
-      desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-          vX, vY, omega, swerve.getRotation());
+      desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vX, vY, omega, swerve.getRotation());
     } else {
       desiredSpeeds = new ChassisSpeeds(vX, vY, omega);
     }
@@ -87,9 +87,12 @@ public class DefaultSwerveDriveNew extends Command {
     // 8. AdvantageKit Logging de telemetría procesada
     Logger.recordOutput("Swerve/Commands/DefaultDrive/IsPrecisionMode", isPrecisionMode);
     Logger.recordOutput("Swerve/Commands/DefaultDrive/IsFieldOriented", isFieldOriented);
-    Logger.recordOutput("Swerve/Commands/DefaultDrive/vxMetersPerSecond", discretSpeeds.vxMetersPerSecond);
-    Logger.recordOutput("Swerve/Commands/DefaultDrive/vyMetersPerSecond", discretSpeeds.vyMetersPerSecond);
-    Logger.recordOutput("Swerve/Commands/DefaultDrive/omegaRadiansPerSecond", discretSpeeds.omegaRadiansPerSecond);
+    Logger.recordOutput(
+        "Swerve/Commands/DefaultDrive/vxMetersPerSecond", discretSpeeds.vxMetersPerSecond);
+    Logger.recordOutput(
+        "Swerve/Commands/DefaultDrive/vyMetersPerSecond", discretSpeeds.vyMetersPerSecond);
+    Logger.recordOutput(
+        "Swerve/Commands/DefaultDrive/omegaRadiansPerSecond", discretSpeeds.omegaRadiansPerSecond);
   }
 
   @Override

@@ -114,8 +114,8 @@ public class ModuleIOTalonSpark implements ModuleIO {
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
 
-    BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp,
-        turnAbsolutePos);
+    BaseStatusSignal.refreshAll(
+        drivePosition, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp, turnAbsolutePos);
 
     inputs.drivePositionRad = drivePosition.getValue().in(Radians) / DRIVE_GEAR_RATIO;
     inputs.driveVelocityRadPerSec = driveVelocity.getValue().in(RadiansPerSecond) / DRIVE_GEAR_RATIO;

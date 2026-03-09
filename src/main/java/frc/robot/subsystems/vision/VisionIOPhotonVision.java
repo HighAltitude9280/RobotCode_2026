@@ -2,83 +2,81 @@ package frc.robot.subsystems.vision;
 
 import static frc.robot.subsystems.vision.VisionConstants.TAG_LAYOUT;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import java.util.List;
-import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionIOPhotonVision implements VisionIO {
   private final PhotonCamera camera;
-  private final PhotonPoseEstimator poseEstimator;
+  private final Transform3d robotToCamera;
 
   public VisionIOPhotonVision(String cameraName, Transform3d robotToCamera) {
-    camera = new PhotonCamera(cameraName);
-
-    poseEstimator =
-        new PhotonPoseEstimator(
-            TAG_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
-
-    poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    this.camera = new PhotonCamera(cameraName);
+    this.robotToCamera = robotToCamera;
   }
 
   @Override
   public void updateInputs(VisionIOInputs inputs) {
-    // Reset base cada loop
     inputs.connected = camera.isConnected();
-    inputs.hasEstimate = false;
-    inputs.timestampSeconds = 0.0;
-    inputs.tagCount = 0;
-    inputs.averageTagDistanceMeters = 0.0;
-    inputs.ambiguity = 0.0;
-    inputs.seenTagIds = new int[] {};
-
-    List<PhotonPipelineResult> unreadResults = camera.getAllUnreadResults();
-    if (unreadResults.isEmpty()) {
+    if (!inputs.connected)
       return;
-    }
 
-    // Resultado más reciente de este loop
-    PhotonPipelineResult result = unreadResults.get(unreadResults.size() - 1);
+    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+    if (results.isEmpty())
+      return;
 
-    inputs.timestampSeconds = result.getTimestampSeconds();
+    PhotonPipelineResult result = results.get(results.size() - 1);
 
     if (!result.hasTargets()) {
+      inputs.targetCount = 0;
       return;
     }
 
     var targets = result.getTargets();
-    inputs.tagCount = targets.size();
+    inputs.targetCount = targets.size();
+    inputs.tagIds = targets.stream().mapToLong(t -> (long) t.getFiducialId()).toArray();
 
-    int[] seenIds = new int[targets.size()];
-    double totalDistance = 0.0;
-    double maxAmbiguity = 0.0;
-
-    for (int i = 0; i < targets.size(); i++) {
-      PhotonTrackedTarget target = targets.get(i);
-
-      seenIds[i] = target.getFiducialId();
-      totalDistance += target.getBestCameraToTarget().getTranslation().getNorm();
-
-      double ambiguity = target.getPoseAmbiguity();
-      if (ambiguity > maxAmbiguity) {
-        maxAmbiguity = ambiguity;
-      }
+    double totalDist = 0;
+    double maxAmb = 0;
+    for (PhotonTrackedTarget target : targets) {
+      totalDist += target.getBestCameraToTarget().getTranslation().getNorm();
+      maxAmb = Math.max(maxAmb, target.getPoseAmbiguity());
     }
+    inputs.averageTagDistance = totalDist / targets.size();
+    inputs.maxAmbiguity = maxAmb;
 
-    inputs.seenTagIds = seenIds;
-    inputs.averageTagDistanceMeters = totalDistance / targets.size();
-    inputs.ambiguity = maxAmbiguity;
+    // Extracción directa y cálculo manual de Pose sin depender de métodos
+    // deprecados
+    var multiTagResultOpt = result.getMultiTagResult();
 
-    var estimate = poseEstimator.update(result);
-    if (estimate.isPresent()) {
-      EstimatedRobotPose estimatedPose = estimate.get();
-      inputs.hasEstimate = true;
-      inputs.estimatedRobotPose = estimatedPose.estimatedPose;
-      inputs.timestampSeconds = estimatedPose.timestampSeconds;
+    if (multiTagResultOpt.isPresent()) {
+      // El coprocesador ya resolvió PNP para múltiples tags
+      Transform3d fieldToCamera = multiTagResultOpt.get().estimatedPose.best;
+      Pose3d cameraPose = new Pose3d().plus(fieldToCamera);
+
+      // Aplicamos el offset inverso usando transformBy (Estándar WPILib)
+      Pose3d robotPose = cameraPose.transformBy(robotToCamera.inverse());
+
+      inputs.estimatedPose = robotPose.toPose2d();
+      inputs.timestamp = result.getTimestampSeconds();
+
+    } else {
+      // Fallback robusto: Si hay 1 tag, o si Multi-Tag falló pero vemos varios tags,
+      // confiamos en el tag más grande/mejor (índice 0).
+      PhotonTrackedTarget bestTarget = targets.get(0);
+      var tagPoseOpt = TAG_LAYOUT.getTagPose(bestTarget.getFiducialId());
+
+      if (tagPoseOpt.isPresent()) {
+        Pose3d tagPose = tagPoseOpt.get();
+        Pose3d cameraPose = tagPose.transformBy(bestTarget.getBestCameraToTarget().inverse());
+        Pose3d robotPose = cameraPose.transformBy(robotToCamera.inverse());
+
+        inputs.estimatedPose = robotPose.toPose2d();
+        inputs.timestamp = result.getTimestampSeconds();
+      }
     }
   }
 }

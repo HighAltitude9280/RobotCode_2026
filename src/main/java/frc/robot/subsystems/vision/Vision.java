@@ -2,106 +2,100 @@ package frc.robot.subsystems.vision;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.util.LoggedTunableNumber;
+import java.util.ArrayList;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
-
-  @FunctionalInterface
-  public interface VisionMeasurementConsumer {
-    void accept(Pose2d pose, double timestampSeconds, Matrix<N3, N1> stdDevs);
-  }
-
-  private final VisionIO[] io;
+  private final SwerveDrive swerve;
+  private final VisionIO[] ios;
   private final VisionIOInputsAutoLogged[] inputs;
-  private final VisionMeasurementConsumer visionConsumer;
+  private final String[] cameraNames;
 
-  public Vision(VisionMeasurementConsumer visionConsumer, VisionIO... io) {
-    this.visionConsumer = visionConsumer;
-    this.io = io;
+  private final List<LoggedTunableNumber> maxAmbiguityTunables = new ArrayList<>();
+  private final List<LoggedTunableNumber> minDistanceTunables = new ArrayList<>();
+  private final List<LoggedTunableNumber> maxDistanceTunables = new ArrayList<>();
 
-    inputs = new VisionIOInputsAutoLogged[io.length];
-    for (int i = 0; i < io.length; i++) {
+  public Vision(SwerveDrive swerve, String[] cameraNames, VisionIO... ios) {
+    this.swerve = swerve;
+
+    // Fallback Resiliente
+    if (ios == null || cameraNames == null || ios.length != cameraNames.length) {
+      DriverStation.reportError("CRÍTICO: Visión desactivada. Los arrays IO y nombres no coinciden o son nulos.",
+          false);
+
+      // Inicialización vacía para evitar NPEs en el periodic y sobrevivir al error
+      this.ios = new VisionIO[0];
+      this.cameraNames = new String[0];
+      this.inputs = new VisionIOInputsAutoLogged[0];
+      return;
+    }
+
+    this.cameraNames = cameraNames;
+    this.ios = ios;
+    this.inputs = new VisionIOInputsAutoLogged[ios.length];
+
+    for (int i = 0; i < ios.length; i++) {
       inputs[i] = new VisionIOInputsAutoLogged();
+
+      maxAmbiguityTunables
+          .add(new LoggedTunableNumber("Vision/" + cameraNames[i] + "/MaxAmbiguity", DEFAULT_MAX_AMBIGUITY_THRESHOLD));
+      minDistanceTunables
+          .add(new LoggedTunableNumber("Vision/" + cameraNames[i] + "/MinDistance", DEFAULT_MIN_DISTANCE_METERS));
+      maxDistanceTunables
+          .add(new LoggedTunableNumber("Vision/" + cameraNames[i] + "/MaxDistance", DEFAULT_MAX_DISTANCE_METERS));
     }
   }
 
   @Override
   public void periodic() {
-    for (int i = 0; i < io.length; i++) {
-      io[i].updateInputs(inputs[i]);
-      Logger.processInputs("Vision/Camera" + i, inputs[i]);
+    // Si la inicialización falló y los arrays están vacíos, este bucle simplemente
+    // no hace nada,
+    // evitando crasheos catastróficos en pleno match.
+    for (int i = 0; i < ios.length; i++) {
+      ios[i].updateInputs(inputs[i]);
+      Logger.processInputs("Vision/" + cameraNames[i], inputs[i]);
 
-      boolean accepted = shouldAcceptMeasurement(inputs[i]);
-      Logger.recordOutput("Vision/Camera" + i + "/Accepted", accepted);
+      if (isValid(i)) {
+        double xyStdDev = BASE_XY_STD_DEV_METERS * Math.pow(inputs[i].averageTagDistance, 2);
+        double thetaStdDev;
 
-      if (!accepted) {
-        continue;
+        if (inputs[i].targetCount > 1) {
+          thetaStdDev = BASE_THETA_STD_DEV_RADS * Math.pow(inputs[i].averageTagDistance, 2);
+        } else {
+          thetaStdDev = Double.MAX_VALUE;
+        }
+
+        swerve.addVisionMeasurement(
+            inputs[i].estimatedPose,
+            inputs[i].timestamp,
+            VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
+
+        Logger.recordOutput("Vision/" + cameraNames[i] + "/AcceptedPose", inputs[i].estimatedPose);
       }
-
-      Pose2d pose2d = inputs[i].estimatedRobotPose.toPose2d();
-      Matrix<N3, N1> stdDevs = getStdDevs(inputs[i]);
-
-      visionConsumer.accept(pose2d, inputs[i].timestampSeconds, stdDevs);
-
-      Logger.recordOutput("Vision/Camera" + i + "/RobotPose2d", pose2d);
-      Logger.recordOutput("Vision/Camera" + i + "/StdDevs", stdDevs.getData());
     }
   }
 
-  private boolean shouldAcceptMeasurement(VisionIOInputsAutoLogged input) {
-    if (!input.connected) {
+  private boolean isValid(int index) {
+    var input = inputs[index];
+    if (!input.connected || input.targetCount == 0)
       return false;
-    }
 
-    if (!input.hasEstimate) {
+    if (input.averageTagDistance < minDistanceTunables.get(index).get() ||
+        input.averageTagDistance > maxDistanceTunables.get(index).get())
       return false;
-    }
 
-    if (input.tagCount <= 0) {
+    if (input.maxAmbiguity > maxAmbiguityTunables.get(index).get())
       return false;
-    }
 
-    if (input.averageTagDistanceMeters > MAX_TAG_DISTANCE) {
-      return false;
-    }
-
-    if (input.tagCount == 1 && input.ambiguity > MAX_SINGLE_TAG_AMBIGUITY) {
-      return false;
-    }
-
-    Pose2d pose = input.estimatedRobotPose.toPose2d();
-
-    if (pose.getX() < 0.0 || pose.getX() > TAG_LAYOUT.getFieldLength()) {
-      return false;
-    }
-
-    if (pose.getY() < 0.0 || pose.getY() > TAG_LAYOUT.getFieldWidth()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private Matrix<N3, N1> getStdDevs(VisionIOInputsAutoLogged input) {
-    double xyStdDev =
-        BASE_XY_STD_DEV
-            * Math.pow(input.averageTagDistanceMeters, 2.0)
-            / Math.max(input.tagCount, 1);
-
-    double thetaStdDev;
-    if (input.tagCount >= 2) {
-      thetaStdDev =
-          BASE_THETA_STD_DEV * Math.pow(input.averageTagDistanceMeters, 2.0) / input.tagCount;
-    } else {
-      thetaStdDev = Double.MAX_VALUE;
-    }
-
-    return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
+    Pose2d p = input.estimatedPose;
+    return p.getX() >= 0 && p.getX() <= TAG_LAYOUT.getFieldLength() &&
+        p.getY() >= 0 && p.getY() <= TAG_LAYOUT.getFieldWidth();
   }
 }

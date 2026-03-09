@@ -69,7 +69,6 @@ public class DefaultDriver implements ControlProfile {
     // --- DRIVER ASSISTS ---
 
     // Botón X: DriveToPose (PID Local) - Ajuste Fino
-    // Ideal para alinearse en el Reef cuando estás cerca (< 1 metro)
     controller
         .x()
         .whileTrue(

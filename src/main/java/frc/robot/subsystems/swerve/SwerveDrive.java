@@ -44,12 +44,11 @@ public class SwerveDrive extends SubsystemBase {
       modulePositions[i] = new SwerveModulePosition();
     }
 
-    this.poseEstimator =
-        new SwerveDrivePoseEstimator(
-            HighAltitudeConstants.Swerve.KINEMATICS,
-            new Rotation2d(),
-            getModulePositions(), // Usa el método optimizado
-            new Pose2d());
+    this.poseEstimator = new SwerveDrivePoseEstimator(
+        HighAltitudeConstants.Swerve.KINEMATICS,
+        new Rotation2d(),
+        getModulePositions(), // Usa el método optimizado
+        new Pose2d());
 
     configureAutoBuilder();
 
@@ -96,8 +95,7 @@ public class SwerveDrive extends SubsystemBase {
     // CORRECCIÓN POWERHOUSE: Discretize the setpoint
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
 
-    SwerveModuleState[] setpointStates =
-        HighAltitudeConstants.Swerve.KINEMATICS.toSwerveModuleStates(discreteSpeeds);
+    SwerveModuleState[] setpointStates = HighAltitudeConstants.Swerve.KINEMATICS.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         setpointStates, HighAltitudeConstants.Swerve.MAX_LINEAR_SPEED_M_S);
 
@@ -107,15 +105,15 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
-   * [NEW] Control de velocidad con centro de rotación variable. Útil para rotar alrededor de una
+   * [NEW] Control de velocidad con centro de rotación variable. Útil para rotar
+   * alrededor de una
    * esquina del robot o un game piece.
    */
   public void runVelocity(ChassisSpeeds speeds, Translation2d centerOfRotation) {
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
 
-    SwerveModuleState[] setpointStates =
-        HighAltitudeConstants.Swerve.KINEMATICS.toSwerveModuleStates(
-            discreteSpeeds, centerOfRotation);
+    SwerveModuleState[] setpointStates = HighAltitudeConstants.Swerve.KINEMATICS.toSwerveModuleStates(
+        discreteSpeeds, centerOfRotation);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         setpointStates, HighAltitudeConstants.Swerve.MAX_LINEAR_SPEED_M_S);
 
@@ -125,19 +123,20 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
-   * [NEW] Retorna la velocidad del robot RELATIVA AL CAMPO. Requerido para DriveToPose y
+   * [NEW] Retorna la velocidad del robot RELATIVA AL CAMPO. Requerido para
+   * DriveToPose y
    * PathPlanner.
    */
   public ChassisSpeeds getFieldRelativeSpeeds() {
     // 1. Obtener velocidades relativas al robot
-    ChassisSpeeds robotSpeeds =
-        HighAltitudeConstants.Swerve.KINEMATICS.toChassisSpeeds(getModuleStates());
+    ChassisSpeeds robotSpeeds = HighAltitudeConstants.Swerve.KINEMATICS.toChassisSpeeds(getModuleStates());
     // 2. Rotar por el ángulo actual para obtener velocidades de campo
     return ChassisSpeeds.fromRobotRelativeSpeeds(robotSpeeds, getRotation());
   }
 
   /**
-   * Retorna la velocidad actual relativa al robot. Requerido por PathPlanner para corregir errores.
+   * Retorna la velocidad actual relativa al robot. Requerido por PathPlanner para
+   * corregir errores.
    */
   public ChassisSpeeds getRobotRelativeSpeeds() {
     // kinematics.toChassisSpeeds toma ModuleStates y retorna RobotRelativeSpeeds
@@ -149,22 +148,21 @@ public class SwerveDrive extends SubsystemBase {
       // 1. Definir Configuración Física del Robot (Para Choreo/PathPlanner)
       // Usa la masa, inercia y fricción del módulo para calcular Feedforwards
       // precisos
-      RobotConfig config =
-          new RobotConfig(
-              HighAltitudeConstants.MASS_KG,
-              HighAltitudeConstants.MOI_KG_M2,
-              new com.pathplanner.lib.config.ModuleConfig(
-                  HighAltitudeConstants.WHEEL_RADIUS_METERS,
-                  HighAltitudeConstants.Swerve.MAX_LINEAR_SPEED_M_S,
-                  1.2, // Coeficiente de fricción de rueda (1.2 es estándar para carpet)
-                  new DCMotor(
-                      12, 7.09, 366, 2, Units.rotationsPerMinuteToRadiansPerSecond(6000), 1),
-                  HighAltitudeConstants.Swerve.DRIVE_GEAR_RATIO, // Drive Gearing
-                  40.0, // Current Limit
-                  1 // FNum motors per module
-                  ),
-              HighAltitudeConstants.Swerve.KINEMATICS.getModules() // Module offsets
-              );
+      RobotConfig config = new RobotConfig(
+          HighAltitudeConstants.MASS_KG,
+          HighAltitudeConstants.MOI_KG_M2,
+          new com.pathplanner.lib.config.ModuleConfig(
+              HighAltitudeConstants.WHEEL_RADIUS_METERS,
+              HighAltitudeConstants.Swerve.MAX_LINEAR_SPEED_M_S,
+              1.2, // Coeficiente de fricción de rueda (1.2 es estándar para carpet)
+              new DCMotor(
+                  12, 7.09, 366, 2, Units.rotationsPerMinuteToRadiansPerSecond(6000), 1),
+              HighAltitudeConstants.Swerve.DRIVE_GEAR_RATIO, // Drive Gearing
+              40.0, // Current Limit
+              1 // FNum motors per module
+          ),
+          HighAltitudeConstants.Swerve.KINEMATICS.getModules() // Module offsets
+      );
 
       // 2. Configurar AutoBuilder
       AutoBuilder.configure(
@@ -192,7 +190,7 @@ public class SwerveDrive extends SubsystemBase {
             return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
           },
           this // Subsystem requirement
-          );
+      );
 
     } catch (Exception e) {
       System.err.println("CRITICAL: Failed to configure AutoBuilder. PathPlanner will not work.");
@@ -201,23 +199,24 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
-   * [NUEVO] Pone los módulos en X (X-Stance) para defensa. Hace muy difícil que empujen el robot.
+   * [NUEVO] Pone los módulos en X (X-Stance) para defensa. Hace muy difícil que
+   * empujen el robot.
    */
   public void lock() {
-    SwerveModuleState[] states =
-        new SwerveModuleState[] {
-          new SwerveModuleState(0, Rotation2d.fromDegrees(45)), // FL
-          new SwerveModuleState(0, Rotation2d.fromDegrees(-45)), // FR
-          new SwerveModuleState(0, Rotation2d.fromDegrees(-45)), // BL
-          new SwerveModuleState(0, Rotation2d.fromDegrees(45)) // BR
-        };
+    SwerveModuleState[] states = new SwerveModuleState[] {
+        new SwerveModuleState(0, Rotation2d.fromDegrees(45)), // FL
+        new SwerveModuleState(0, Rotation2d.fromDegrees(-45)), // FR
+        new SwerveModuleState(0, Rotation2d.fromDegrees(-45)), // BL
+        new SwerveModuleState(0, Rotation2d.fromDegrees(45)) // BR
+    };
     for (int i = 0; i < 4; i++) {
       modules[i].runSetpoint(states[i]);
     }
   }
 
   /**
-   * [NUEVO] Método para inyectar datos de Visión (PhotonVision/Limelight). Los equipos PowerHouse
+   * [NUEVO] Método para inyectar datos de Visión (PhotonVision/Limelight). Los
+   * equipos PowerHouse
    * mezclan odometría + visión aquí.
    */
   public void addVisionMeasurement(Pose2d visionPose, double timestamp, Matrix<N3, N1> stdDevs) {
