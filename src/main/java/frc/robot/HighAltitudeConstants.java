@@ -244,6 +244,39 @@ public final class HighAltitudeConstants {
     public static final int FEEDERMOTOR = 52;
   }
 
+  // Leds
+  public static final class Leds {
+    public static final int LED_CANDLE_ID = 19;
+    public static final String LED_CAN_BUS = "";
+
+    public static final int LED_COUNT = 23;
+
+    public static final double LED_BRIGHTNESS = 0.67;
+
+    public static final double LED_BLINK_PERIOD = 0.25;
+    public static final double LED_RAINBOW_SPEED = 0.02;
+
+    public static final int RED_R = 255;
+    public static final int RED_G = 0;
+    public static final int RED_B = 0;
+
+    public static final int GREEN_R = 0;
+    public static final int GREEN_G = 255;
+    public static final int GREEN_B = 0;
+
+    public static final int BLUE_R = 0;
+    public static final int BLUE_G = 0;
+    public static final int BLUE_B = 255;
+
+    public static final int HAR_R = 34;
+    public static final int HAR_G = 191;
+    public static final int HAR_B = 144;
+
+    public static final int OFF_R = 0;
+    public static final int OFF_G = 0;
+    public static final int OFF_B = 0;
+  }
+
   // =============================================================================
   // VISION SUBSYSTEM
   // =============================================================================

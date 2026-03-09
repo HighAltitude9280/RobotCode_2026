@@ -10,7 +10,7 @@ public interface LedsIO {
     public byte[] buffer = new byte[0];
   }
 
-  public default void updateInputs(LedsIOInputs inputs) {}
+  default void updateInputs(LedsIOInputs inputs) {}
 
-  public default void applyOutputs(LedsIOOutputs outputs) {}
+  default void applyOutputs(LedsIOOutputs outputs) {}
 }

@@ -12,6 +12,9 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.pivot.Pivot;
 import frc.robot.subsystems.intake.pivot.PivotIO;
 import frc.robot.subsystems.intake.pivot.PivotIOSparkMax;
+import frc.robot.subsystems.leds.Leds;
+import frc.robot.subsystems.leds.LedsIO;
+import frc.robot.subsystems.leds.LedsIOCANdle;
 import frc.robot.subsystems.rollers.RollerIO;
 import frc.robot.subsystems.rollers.RollerIOTalonFX;
 import frc.robot.subsystems.shooter.Feeder;
@@ -34,6 +37,7 @@ public class RobotContainer {
   private final Indexer indexer;
   private final Intake intake;
   private final Feeder feeder;
+  private final Leds leds;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -61,6 +65,13 @@ public class RobotContainer {
       intake = new Intake(new RollerIOTalonFX(HighAltitudeConstants.Intake.INTAKEMOTOR));
 
       feeder = new Feeder(new RollerIOTalonFX(HighAltitudeConstants.Feeder.FEEDERMOTOR));
+
+      leds =
+          new Leds(
+              new LedsIOCANdle(
+                  HighAltitudeConstants.Leds.LED_CANDLE_ID,
+                  HighAltitudeConstants.Leds.LED_CAN_BUS,
+                  HighAltitudeConstants.Leds.LED_COUNT));
     } else {
       // Simulation
       drive =
@@ -76,6 +87,7 @@ public class RobotContainer {
       indexer = new Indexer(new RollerIO() {});
       intake = new Intake(new RollerIO() {});
       feeder = new Feeder(new RollerIO() {});
+      leds = new Leds(new LedsIO() {});
     }
 
     configureBindings();
@@ -106,7 +118,7 @@ public class RobotContainer {
             driver::getDriveStrafe, // vY
             driver::getDriveRotation, // Omega
             driver::isPrecisionMode, // Gatillo izquierdo (Left Trigger)
-            () -> true // Field Oriented siempre activado por defecto
+            () -> false // Field Oriented siempre activado por defecto
             ));
     flywheel.setDefaultCommand(Commands.run(() -> flywheel.coast(), flywheel));
     driver.configureBindings(this);
@@ -153,5 +165,9 @@ public class RobotContainer {
 
   public Feeder getFeeder() {
     return feeder;
+  }
+
+  public Leds getLeds() {
+    return leds;
   }
 }
