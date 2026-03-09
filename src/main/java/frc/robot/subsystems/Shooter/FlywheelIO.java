@@ -25,10 +25,7 @@ public interface FlywheelIO {
   public static class FlywheelIOOutputs {
     public FlywheelIOOutputMode mode = FlywheelIOOutputMode.COAST;
     public double velocityRadsPerSec = 0.0;
-    public double feedforward = 0.0;
-
-    public double kP;
-    public double kD;
+    // kP, kD, feedforward removed — gains live in constructor config only
   }
 
   default void updateInputs(FlywheelIOInputs inputs) {}

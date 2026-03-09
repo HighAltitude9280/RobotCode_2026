@@ -200,13 +200,13 @@ public final class HighAltitudeConstants {
 
   // Shooter
   public static final class Shooter {
-    public static final double MAX_FLYWHEEL_SPEED_RADS_PER_SEC = 460;
+    public static final double MAX_FLYWHEEL_SPEED_RADS_PER_SEC = 450; // 460 was working
 
     public static final double KP = 0.7;
     public static final double KI = 0.0;
     public static final double KD = 0.0;
     public static final double KS = 0.0;
-    public static final double KV = 0.0;
+    public static final double KV = 0.12;
 
     // Motor Ports
     public static final int ShooterRight = 61;

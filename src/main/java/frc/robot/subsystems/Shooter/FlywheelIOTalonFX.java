@@ -106,18 +106,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void applyOutputs(FlywheelIOOutputs outputs) {
     switch (outputs.mode) {
-      case VELOCITY -> {
-        var slot0 =
-            new com.ctre.phoenix6.configs.Slot0Configs()
-                .withKP(outputs.kP)
-                .withKD(outputs.kD)
-                .withKV(0.0);
-        leader.getConfigurator().apply(slot0);
-        leader.setControl(
-            velocityRequest
-                .withVelocity(outputs.velocityRadsPerSec / (2.0 * Math.PI))
-                .withFeedForward(outputs.feedforward));
-      }
+      case VELOCITY -> leader.setControl(
+          velocityRequest.withVelocity(outputs.velocityRadsPerSec / (2.0 * Math.PI)));
       case COAST -> leader.setControl(coastRequest);
     }
   }

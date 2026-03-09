@@ -20,9 +20,7 @@ public class VisionIOPhotonVision implements VisionIO {
 
     poseEstimator =
         new PhotonPoseEstimator(
-            TAG_LAYOUT,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            robotToCamera);
+            TAG_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
 
     poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }

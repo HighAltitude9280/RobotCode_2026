@@ -14,7 +14,7 @@ public class PivotExpandCommand extends Command {
 
   @Override
   public void initialize() {
-    pivot.expand(); 
+    pivot.expand();
   }
 
   @Override

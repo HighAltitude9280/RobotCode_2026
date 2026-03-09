@@ -47,10 +47,7 @@ public class Vision extends SubsystemBase {
       Pose2d pose2d = inputs[i].estimatedRobotPose.toPose2d();
       Matrix<N3, N1> stdDevs = getStdDevs(inputs[i]);
 
-      visionConsumer.accept(
-          pose2d,
-          inputs[i].timestampSeconds,
-          stdDevs);
+      visionConsumer.accept(pose2d, inputs[i].timestampSeconds, stdDevs);
 
       Logger.recordOutput("Vision/Camera" + i + "/RobotPose2d", pose2d);
       Logger.recordOutput("Vision/Camera" + i + "/StdDevs", stdDevs.getData());
@@ -100,9 +97,7 @@ public class Vision extends SubsystemBase {
     double thetaStdDev;
     if (input.tagCount >= 2) {
       thetaStdDev =
-          BASE_THETA_STD_DEV
-              * Math.pow(input.averageTagDistanceMeters, 2.0)
-              / input.tagCount;
+          BASE_THETA_STD_DEV * Math.pow(input.averageTagDistanceMeters, 2.0) / input.tagCount;
     } else {
       thetaStdDev = Double.MAX_VALUE;
     }

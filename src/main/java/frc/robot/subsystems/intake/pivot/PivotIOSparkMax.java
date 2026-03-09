@@ -42,16 +42,14 @@ public class PivotIOSparkMax implements PivotIO {
         .softLimit
         .forwardSoftLimitEnabled(true)
         .forwardSoftLimit(
-            (float) HighAltitudeConstants.Pivot.RETRACT_POS
+            (float) HighAltitudeConstants.Pivot.EXTENDED_POS
                 * HighAltitudeConstants.Pivot.GEAR_RATIO)
         .reverseSoftLimitEnabled(true)
         .reverseSoftLimit(
-            (float) HighAltitudeConstants.Pivot.EXTENDED_POS
+            (float) HighAltitudeConstants.Pivot.RETRACT_POS
                 * HighAltitudeConstants.Pivot.GEAR_RATIO);
 
     spark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    resetEncoder();
   }
 
   @Override
