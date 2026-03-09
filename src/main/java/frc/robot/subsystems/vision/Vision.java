@@ -27,8 +27,8 @@ public class Vision extends SubsystemBase {
 
     // Fallback Resiliente
     if (ios == null || cameraNames == null || ios.length != cameraNames.length) {
-      DriverStation.reportError("CRÍTICO: Visión desactivada. Los arrays IO y nombres no coinciden o son nulos.",
-          false);
+      DriverStation.reportError(
+          "CRÍTICO: Visión desactivada. Los arrays IO y nombres no coinciden o son nulos.", false);
 
       // Inicialización vacía para evitar NPEs en el periodic y sobrevivir al error
       this.ios = new VisionIO[0];
@@ -44,12 +44,15 @@ public class Vision extends SubsystemBase {
     for (int i = 0; i < ios.length; i++) {
       inputs[i] = new VisionIOInputsAutoLogged();
 
-      maxAmbiguityTunables
-          .add(new LoggedTunableNumber("Vision/" + cameraNames[i] + "/MaxAmbiguity", DEFAULT_MAX_AMBIGUITY_THRESHOLD));
-      minDistanceTunables
-          .add(new LoggedTunableNumber("Vision/" + cameraNames[i] + "/MinDistance", DEFAULT_MIN_DISTANCE_METERS));
-      maxDistanceTunables
-          .add(new LoggedTunableNumber("Vision/" + cameraNames[i] + "/MaxDistance", DEFAULT_MAX_DISTANCE_METERS));
+      maxAmbiguityTunables.add(
+          new LoggedTunableNumber(
+              "Vision/" + cameraNames[i] + "/MaxAmbiguity", DEFAULT_MAX_AMBIGUITY_THRESHOLD));
+      minDistanceTunables.add(
+          new LoggedTunableNumber(
+              "Vision/" + cameraNames[i] + "/MinDistance", DEFAULT_MIN_DISTANCE_METERS));
+      maxDistanceTunables.add(
+          new LoggedTunableNumber(
+              "Vision/" + cameraNames[i] + "/MaxDistance", DEFAULT_MAX_DISTANCE_METERS));
     }
   }
 
@@ -84,18 +87,17 @@ public class Vision extends SubsystemBase {
 
   private boolean isValid(int index) {
     var input = inputs[index];
-    if (!input.connected || input.targetCount == 0)
-      return false;
+    if (!input.connected || input.targetCount == 0) return false;
 
-    if (input.averageTagDistance < minDistanceTunables.get(index).get() ||
-        input.averageTagDistance > maxDistanceTunables.get(index).get())
-      return false;
+    if (input.averageTagDistance < minDistanceTunables.get(index).get()
+        || input.averageTagDistance > maxDistanceTunables.get(index).get()) return false;
 
-    if (input.maxAmbiguity > maxAmbiguityTunables.get(index).get())
-      return false;
+    if (input.maxAmbiguity > maxAmbiguityTunables.get(index).get()) return false;
 
     Pose2d p = input.estimatedPose;
-    return p.getX() >= 0 && p.getX() <= TAG_LAYOUT.getFieldLength() &&
-        p.getY() >= 0 && p.getY() <= TAG_LAYOUT.getFieldWidth();
+    return p.getX() >= 0
+        && p.getX() <= TAG_LAYOUT.getFieldLength()
+        && p.getY() >= 0
+        && p.getY() <= TAG_LAYOUT.getFieldWidth();
   }
 }

@@ -58,13 +58,15 @@ public class SwerveDefaultCommand extends Command {
       var alliance = DriverStation.getAlliance();
 
       if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            -xMetersPerSec, -yMetersPerSec, rotRadPerSec, drive.getRotation());
+        speeds =
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                -xMetersPerSec, -yMetersPerSec, rotRadPerSec, drive.getRotation());
 
       } else {
 
-        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xMetersPerSec, yMetersPerSec, rotRadPerSec, drive.getRotation());
+        speeds =
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                xMetersPerSec, yMetersPerSec, rotRadPerSec, drive.getRotation());
       }
     } else {
 

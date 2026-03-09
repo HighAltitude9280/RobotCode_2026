@@ -38,9 +38,10 @@ public class RollerIOTalonFX implements RollerIO {
 
   @Override
   public void updateInputs(RollerIOInputs inputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(
-        position, velocity, appliedVolts, supplyCurrent, torqueCurrent, temp)
-        .isOK();
+    inputs.connected =
+        BaseStatusSignal.refreshAll(
+                position, velocity, appliedVolts, supplyCurrent, torqueCurrent, temp)
+            .isOK();
 
     inputs.positionRads = position.getValue().in(Radians);
     inputs.velocityRadsPerSec = velocity.getValue().in(RadiansPerSecond);

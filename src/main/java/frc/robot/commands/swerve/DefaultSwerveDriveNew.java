@@ -43,56 +43,59 @@ public class DefaultSwerveDriveNew extends Command {
 
   @Override
   public void execute() {
-    // 1. Leer valores de los Suppliers (Replay-safe)
+    // 1. Leer valores crudos
     double vX = vXSupplier.getAsDouble();
     double vY = vYSupplier.getAsDouble();
     double omega = omegaSupplier.getAsDouble();
     boolean isPrecisionMode = precisionModeSupplier.getAsBoolean();
     boolean isFieldOriented = fieldOrientedSupplier.getAsBoolean();
 
-    // 2. Deadband Centralizado = DEADZONE
-    vX = MathUtil.applyDeadband(vX, 0.1);
-    vY = MathUtil.applyDeadband(vY, 0.1);
-    omega = MathUtil.applyDeadband(omega, 0.1);
+    // 2. Deadband Centralizado
+    vX = MathUtil.applyDeadband(vX, 0.08);
+    vY = MathUtil.applyDeadband(vY, 0.08);
+    omega = MathUtil.applyDeadband(omega, 0.08);
 
-    // 3. Curva Exponencial de Aceleración (Squaring preservando el signo)
+    // 3. Curva Exponencial (SQUARING ÚNICO)
     vX = Math.copySign(vX * vX, vX);
     vY = Math.copySign(vY * vY, vY);
     omega = Math.copySign(omega * omega, omega);
 
-    // 4. Multiplicadores de Modo (Precisión vs Sprints) = PRECISION MODE
-    double transMultiplier = isPrecisionMode ? 0.30 : 0.75;
-    double rotMultiplier = isPrecisionMode ? 0.50 : 0.65;
+    // 4. Multiplicadores de Modo (Precisión vs Sprints)
+    double transMultiplier = isPrecisionMode ? 0.30 : 1.0; // Cambiado a 1.0 para sprint máximo
+    double rotMultiplier = isPrecisionMode ? 0.50 : 0.85; // Subido a 0.85 para que SÍ gire ágil
 
-    // Aplicar multiplicadores y escalar a velocidades físicas máximas
     vX *= transMultiplier * HighAltitudeConstants.Swerve.MAX_LINEAR_SPEED_M_S;
     vY *= transMultiplier * HighAltitudeConstants.Swerve.MAX_LINEAR_SPEED_M_S;
     omega *= rotMultiplier * HighAltitudeConstants.Swerve.MAX_ANGULAR_SPEED_RAD_S;
 
-    // 5. Transformación Field-Oriented vs Robot-Oriented
+    // 5. Transformación Field-Oriented con ALLIANCE FLIP 🔴🔵
     ChassisSpeeds desiredSpeeds;
     if (isFieldOriented) {
-      desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vX, vY, omega, swerve.getRotation());
+      // Magia de Arquitectura: Si somos alianza roja, invertimos traslación para que
+      // se maneje igual.
+      var alliance = edu.wpi.first.wpilibj.DriverStation.getAlliance();
+      if (alliance.isPresent() && alliance.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red) {
+        vX = -vX;
+        vY = -vY;
+      }
+
+      desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+          vX, vY, omega, swerve.getRotation());
     } else {
       desiredSpeeds = new ChassisSpeeds(vX, vY, omega);
     }
 
-    // 6. Skew Compensation (Discretización a 50Hz)
-    // Esto inyecta micro-compensaciones en giros agresivos para no perder tracción
+    // 6. Skew Compensation (Discretización)
     ChassisSpeeds discretSpeeds = ChassisSpeeds.discretize(desiredSpeeds, 0.02);
 
-    // 7. Enviar comandos al hardware genérico
+    // 7. Enviar comandos
     swerve.runVelocity(discretSpeeds);
 
-    // 8. AdvantageKit Logging de telemetría procesada
+    // 8. AdvantageKit Logging
     Logger.recordOutput("Swerve/Commands/DefaultDrive/IsPrecisionMode", isPrecisionMode);
-    Logger.recordOutput("Swerve/Commands/DefaultDrive/IsFieldOriented", isFieldOriented);
-    Logger.recordOutput(
-        "Swerve/Commands/DefaultDrive/vxMetersPerSecond", discretSpeeds.vxMetersPerSecond);
-    Logger.recordOutput(
-        "Swerve/Commands/DefaultDrive/vyMetersPerSecond", discretSpeeds.vyMetersPerSecond);
-    Logger.recordOutput(
-        "Swerve/Commands/DefaultDrive/omegaRadiansPerSecond", discretSpeeds.omegaRadiansPerSecond);
+    Logger.recordOutput("Swerve/Commands/DefaultDrive/vxMetersPerSecond", discretSpeeds.vxMetersPerSecond);
+    Logger.recordOutput("Swerve/Commands/DefaultDrive/vyMetersPerSecond", discretSpeeds.vyMetersPerSecond);
+    Logger.recordOutput("Swerve/Commands/DefaultDrive/omegaRadiansPerSecond", discretSpeeds.omegaRadiansPerSecond);
   }
 
   @Override

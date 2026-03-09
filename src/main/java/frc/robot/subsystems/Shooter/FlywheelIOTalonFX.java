@@ -86,10 +86,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(
-        position, velocity, appliedVolts, supplyCurrent, torqueCurrent, temp)
-        .isOK();
-    inputs.followerConnected = BaseStatusSignal.refreshAll(followerSupplyCurrent, followerTemp).isOK();
+    inputs.connected =
+        BaseStatusSignal.refreshAll(
+                position, velocity, appliedVolts, supplyCurrent, torqueCurrent, temp)
+            .isOK();
+    inputs.followerConnected =
+        BaseStatusSignal.refreshAll(followerSupplyCurrent, followerTemp).isOK();
 
     inputs.positionRads = position.getValue().in(Radians);
     inputs.velocityRadsPerSec = velocity.getValue().in(RadiansPerSecond);

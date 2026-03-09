@@ -64,8 +64,8 @@ public class ModuleIOTalonSpark implements ModuleIO {
 
     // Configuración inicial limpia
     // (Modificamos el objeto miembro driveConfig directamente)
-    driveConfig.MotorOutput.Inverted = driveInverted ? InvertedValue.Clockwise_Positive
-        : InvertedValue.CounterClockwise_Positive;
+    driveConfig.MotorOutput.Inverted =
+        driveInverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
@@ -118,24 +118,28 @@ public class ModuleIOTalonSpark implements ModuleIO {
         drivePosition, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp, turnAbsolutePos);
 
     inputs.drivePositionRad = drivePosition.getValue().in(Radians) / DRIVE_GEAR_RATIO;
-    inputs.driveVelocityRadPerSec = driveVelocity.getValue().in(RadiansPerSecond) / DRIVE_GEAR_RATIO;
+    inputs.driveVelocityRadPerSec =
+        driveVelocity.getValue().in(RadiansPerSecond) / DRIVE_GEAR_RATIO;
     inputs.driveAppliedVolts = driveAppliedVolts.getValue().in(Volts);
     inputs.driveCurrentAmps = driveCurrent.getValue().in(Amps);
     inputs.driveTempCelcius = driveTemp.getValue().in(Celsius);
 
-    inputs.turnPositionRad = Units.rotationsToRadians(turnRelativeEncoder.getPosition() / TURN_GEAR_RATIO);
-    inputs.turnVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
-        turnRelativeEncoder.getVelocity() / TURN_GEAR_RATIO);
+    inputs.turnPositionRad =
+        Units.rotationsToRadians(turnRelativeEncoder.getPosition() / TURN_GEAR_RATIO);
+    inputs.turnVelocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(
+            turnRelativeEncoder.getVelocity() / TURN_GEAR_RATIO);
     inputs.turnAppliedVolts = turnMotor.getAppliedOutput() * turnMotor.getBusVoltage();
     inputs.turnCurrentAmps = turnMotor.getOutputCurrent();
 
-    inputs.turnAbsolutePositionRad = MathUtil
-        .angleModulus(Units.rotationsToRadians(turnAbsolutePos.getValue().in(Rotations)));
+    inputs.turnAbsolutePositionRad =
+        MathUtil.angleModulus(Units.rotationsToRadians(turnAbsolutePos.getValue().in(Rotations)));
   }
 
   @Override
   public void resetEncoder() {
-    double absolutePositionRot = turnCanCoder.getAbsolutePosition().waitForUpdate(0.5).getValue().in(Rotations);
+    double absolutePositionRot =
+        turnCanCoder.getAbsolutePosition().waitForUpdate(0.5).getValue().in(Rotations);
     turnRelativeEncoder.setPosition(absolutePositionRot * TURN_GEAR_RATIO);
   }
 

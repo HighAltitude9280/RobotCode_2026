@@ -178,8 +178,8 @@ public final class HighAltitudeConstants {
     public static final double TURN_MAX_ACCELERATION_RAD_S2 = 15.0;
 
     // --- Limits ---
-    public static final double MAX_LINEAR_SPEED_M_S = 1.5;
-    public static final double MAX_ANGULAR_SPEED_RAD_S = 5.0;
+    public static final double MAX_LINEAR_SPEED_M_S = 4.5;
+    public static final double MAX_ANGULAR_SPEED_RAD_S = 6.28;
 
     // NUEVO: Agregado para SlewRateLimiter en SwerveModule
     public static final double MAX_ACCEL_M_S2 = 15.0;

@@ -21,12 +21,10 @@ public class VisionIOPhotonVision implements VisionIO {
   @Override
   public void updateInputs(VisionIOInputs inputs) {
     inputs.connected = camera.isConnected();
-    if (!inputs.connected)
-      return;
+    if (!inputs.connected) return;
 
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-    if (results.isEmpty())
-      return;
+    if (results.isEmpty()) return;
 
     PhotonPipelineResult result = results.get(results.size() - 1);
 

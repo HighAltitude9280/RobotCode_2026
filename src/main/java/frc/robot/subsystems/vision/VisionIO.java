@@ -15,6 +15,5 @@ public interface VisionIO {
     public double maxAmbiguity = 0.0;
   }
 
-  public default void updateInputs(VisionIOInputs inputs) {
-  }
+  public default void updateInputs(VisionIOInputs inputs) {}
 }

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.HighAltitudeConstants.Swerve;
 import frc.robot.HighAltitudeConstants.Swerve.ModuleConstants;
-import frc.robot.commands.swerve.SwerveDefaultCommand;
+import frc.robot.commands.swerve.DefaultSwerveDriveNew;
 import frc.robot.controls.profiles.DefaultDriver;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
@@ -87,10 +87,10 @@ public class RobotContainer {
   private SwerveModule createRealModule(ModuleConstants constants, int index) {
     ModuleIO io =
         new ModuleIOTalonSpark(
-            constants.driveID(), // CORREGIDO: antes driveMotorID()
-            constants.turnID(), // CORREGIDO: antes turnMotorID()
+            constants.driveID(),
+            constants.turnID(),
             constants.cancoderID(),
-            constants.offset(), // AGREGADO: Pasamos el offset del encoder
+            constants.offset(),
             Swerve.DRIVE_GEAR_RATIO,
             Swerve.TURN_GEAR_RATIO,
             constants.driveInverted());
@@ -99,7 +99,15 @@ public class RobotContainer {
 
   private void configureBindings() {
     DefaultDriver driver = new DefaultDriver();
-    drive.setDefaultCommand(new SwerveDefaultCommand(drive, driver));
+    drive.setDefaultCommand(
+        new DefaultSwerveDriveNew(
+            drive,
+            driver::getDriveForward, // vX
+            driver::getDriveStrafe, // vY
+            driver::getDriveRotation, // Omega
+            driver::isPrecisionMode, // Gatillo izquierdo (Left Trigger)
+            () -> true // Field Oriented siempre activado por defecto
+            ));
     flywheel.setDefaultCommand(Commands.run(() -> flywheel.coast(), flywheel));
     driver.configureBindings(this);
   }
