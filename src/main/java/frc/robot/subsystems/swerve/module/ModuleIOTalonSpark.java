@@ -22,11 +22,12 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
+import frc.robot.util.PhoenixOdometryThread;
 
 public class ModuleIOTalonSpark implements ModuleIO {
   // Hardware
-  private final TalonFX driveTalon;
-  private final SparkMax turnSpark;
+  private final TalonFX driveMotor;
+  private final SparkMax turnMotor;
   private final CANcoder turnCanCoder;
   private final RelativeEncoder turnRelativeEncoder;
 
@@ -59,102 +60,108 @@ public class ModuleIOTalonSpark implements ModuleIO {
     this.TURN_GEAR_RATIO = turnGearRatio;
 
     // 1. Configure Drive (TalonFX)
-    driveTalon = new TalonFX(driveID, "rio");
+    driveMotor = new TalonFX(driveID);
 
     // Configuración inicial limpia
     // (Modificamos el objeto miembro driveConfig directamente)
-    driveConfig.MotorOutput.Inverted =
-        driveInverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+    driveConfig.MotorOutput.Inverted = driveInverted ? InvertedValue.Clockwise_Positive
+        : InvertedValue.CounterClockwise_Positive;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
 
     // Aplicamos la configuración inicial
-    driveTalon.getConfigurator().apply(driveConfig);
+    driveMotor.getConfigurator().apply(driveConfig);
 
     // ... (Resto del constructor para SparkMax y CANCoder igual que antes) ...
-    turnSpark = new SparkMax(turnID, MotorType.kBrushless);
-    turnRelativeEncoder = turnSpark.getEncoder();
+    turnMotor = new SparkMax(turnID, MotorType.kBrushless);
+    turnRelativeEncoder = turnMotor.getEncoder();
 
     SparkMaxConfig turnConfig = new SparkMaxConfig();
     turnConfig.idleMode(IdleMode.kBrake);
     turnConfig.smartCurrentLimit(30);
     turnConfig.inverted(true);
-    turnSpark.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    turnCanCoder = new CANcoder(cancoderID, "rio");
+    turnCanCoder = new CANcoder(cancoderID);
     CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.MagnetOffset = angleOffset.getRotations();
     turnCanCoder.getConfigurator().apply(cancoderConfig);
 
     // Signal Setup
-    drivePosition = driveTalon.getPosition();
-    driveVelocity = driveTalon.getVelocity();
-    driveAppliedVolts = driveTalon.getMotorVoltage();
-    driveCurrent = driveTalon.getSupplyCurrent();
-    driveTemp = driveTalon.getDeviceTemp();
+    drivePosition = driveMotor.getPosition();
+    driveVelocity = driveMotor.getVelocity();
+    driveAppliedVolts = driveMotor.getMotorVoltage();
+    driveCurrent = driveMotor.getSupplyCurrent();
+    driveTemp = driveMotor.getDeviceTemp();
     turnAbsolutePos = turnCanCoder.getAbsolutePosition();
 
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp);
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnAbsolutePos);
+    driveVelocity.setUpdateFrequency(50);
+    driveAppliedVolts.setUpdateFrequency(50);
+    driveCurrent.setUpdateFrequency(50);
+    driveTemp.setUpdateFrequency(50);
+
+    turnAbsolutePos.setUpdateFrequency(100);
+    drivePosition.setUpdateFrequency(250);
+
+    driveMotor.optimizeBusUtilization();
+
+    // TODO: si mama comentar esta linea xd
+    PhoenixOdometryThread.getInstance().registerSignals(drivePosition, turnAbsolutePos);
   }
 
   // ... (updateInputs, setDriveVoltage, setTurnVoltage igual que antes) ...
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        drivePosition, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp, turnAbsolutePos);
+
+    BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent, driveTemp,
+        turnAbsolutePos);
 
     inputs.drivePositionRad = drivePosition.getValue().in(Radians) / DRIVE_GEAR_RATIO;
-    inputs.driveVelocityRadPerSec =
-        driveVelocity.getValue().in(RadiansPerSecond) / DRIVE_GEAR_RATIO;
+    inputs.driveVelocityRadPerSec = driveVelocity.getValue().in(RadiansPerSecond) / DRIVE_GEAR_RATIO;
     inputs.driveAppliedVolts = driveAppliedVolts.getValue().in(Volts);
     inputs.driveCurrentAmps = driveCurrent.getValue().in(Amps);
     inputs.driveTempCelcius = driveTemp.getValue().in(Celsius);
 
-    inputs.turnPositionRad =
-        Units.rotationsToRadians(turnRelativeEncoder.getPosition() / TURN_GEAR_RATIO);
-    inputs.turnVelocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(
-            turnRelativeEncoder.getVelocity() / TURN_GEAR_RATIO);
-    inputs.turnAppliedVolts = turnSpark.getAppliedOutput() * turnSpark.getBusVoltage();
-    inputs.turnCurrentAmps = turnSpark.getOutputCurrent();
+    inputs.turnPositionRad = Units.rotationsToRadians(turnRelativeEncoder.getPosition() / TURN_GEAR_RATIO);
+    inputs.turnVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
+        turnRelativeEncoder.getVelocity() / TURN_GEAR_RATIO);
+    inputs.turnAppliedVolts = turnMotor.getAppliedOutput() * turnMotor.getBusVoltage();
+    inputs.turnCurrentAmps = turnMotor.getOutputCurrent();
 
-    inputs.turnAbsolutePositionRad =
-        MathUtil.angleModulus(Units.rotationsToRadians(turnAbsolutePos.getValue().in(Rotations)));
+    inputs.turnAbsolutePositionRad = MathUtil
+        .angleModulus(Units.rotationsToRadians(turnAbsolutePos.getValue().in(Rotations)));
   }
 
   @Override
   public void resetEncoder() {
-    double absolutePositionRot =
-        turnCanCoder.getAbsolutePosition().waitForUpdate(0.5).getValue().in(Rotations);
+    double absolutePositionRot = turnCanCoder.getAbsolutePosition().waitForUpdate(0.5).getValue().in(Rotations);
     turnRelativeEncoder.setPosition(absolutePositionRot * TURN_GEAR_RATIO);
   }
 
   @Override
   public void setDriveVoltage(double volts) {
-    driveTalon.setControl(driveVoltageRequest.withOutput(volts));
+    driveMotor.setControl(driveVoltageRequest.withOutput(volts));
   }
 
   @Override
   public void setTurnVoltage(double volts) {
-    turnSpark.setVoltage(volts);
+    turnMotor.setVoltage(volts);
   }
 
   @Override
   public void setDriveBrakeMode(boolean enable) {
     // Reusamos driveConfig y refrescamos para estar seguros
-    driveTalon.getConfigurator().refresh(driveConfig);
+    driveMotor.getConfigurator().refresh(driveConfig);
     driveConfig.MotorOutput.NeutralMode = enable ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-    driveTalon.getConfigurator().apply(driveConfig);
+    driveMotor.getConfigurator().apply(driveConfig);
   }
 
   @Override
   public void setTurnBrakeMode(boolean enable) {
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-    turnSpark.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    turnMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   @Override
@@ -162,13 +169,13 @@ public class ModuleIOTalonSpark implements ModuleIO {
     // 1. REFRESH: Bajamos la config actual del motor al objeto cacheado
     // 'driveConfig'
     // Esto asegura que NO borremos el Current Limit ni el Inverted status.
-    driveTalon.getConfigurator().refresh(driveConfig);
+    driveMotor.getConfigurator().refresh(driveConfig);
 
     // 2. MODIFY: Cambiamos solo lo que nos interesa
     driveConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = timeSeconds;
     driveConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = timeSeconds;
 
     // 3. APPLY: Subimos el paquete completo actualizado
-    driveTalon.getConfigurator().apply(driveConfig);
+    driveMotor.getConfigurator().apply(driveConfig);
   }
 }

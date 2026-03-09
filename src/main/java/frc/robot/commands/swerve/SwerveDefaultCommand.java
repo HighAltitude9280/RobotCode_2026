@@ -17,11 +17,11 @@ public class SwerveDefaultCommand extends Command {
   private final BooleanSupplier isFieldOriented;
 
   // Slew Rate Limiters (Filtros para suavizar el input del joystick)
-  // FIXME: slewRate repetido, incluirlo únicamente aquí
   private final SlewRateLimiter xLimiter = new SlewRateLimiter(Swerve.MAX_LINEAR_SPEED_M_S);
   private final SlewRateLimiter yLimiter = new SlewRateLimiter(Swerve.MAX_LINEAR_SPEED_M_S);
   private final SlewRateLimiter rotLimiter = new SlewRateLimiter(Swerve.TURN_MAX_VELOCITY_RAD_S);
 
+  @Deprecated
   public SwerveDefaultCommand(
       SwerveDrive drive, ControlProfile controller, BooleanSupplier isFieldOriented) {
     this.drive = drive;
@@ -58,15 +58,13 @@ public class SwerveDefaultCommand extends Command {
       var alliance = DriverStation.getAlliance();
 
       if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-        speeds =
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                -xMetersPerSec, -yMetersPerSec, rotRadPerSec, drive.getRotation());
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            -xMetersPerSec, -yMetersPerSec, rotRadPerSec, drive.getRotation());
 
       } else {
 
-        speeds =
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                xMetersPerSec, yMetersPerSec, rotRadPerSec, drive.getRotation());
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            xMetersPerSec, yMetersPerSec, rotRadPerSec, drive.getRotation());
       }
     } else {
 
