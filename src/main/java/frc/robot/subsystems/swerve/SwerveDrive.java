@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.HighAltitudeConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
+import frc.robot.subsystems.swerve.gyro.GyroIOSim;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveDrive extends SubsystemBase {
@@ -77,6 +78,14 @@ public class SwerveDrive extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (HighAltitudeConstants.currentMode == HighAltitudeConstants.Mode.SIM
+        && gyroIO instanceof GyroIOSim) {
+      // Calcula qué tan rápido están haciendo girar el robot las llantas
+      ChassisSpeeds chassisSpeeds =
+          HighAltitudeConstants.Swerve.KINEMATICS.toChassisSpeeds(getModuleStates());
+      ((GyroIOSim) gyroIO).setYawData(chassisSpeeds.omegaRadiansPerSecond);
+    }
+
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
 

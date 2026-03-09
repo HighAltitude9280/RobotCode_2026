@@ -1,13 +1,22 @@
 package frc.robot.subsystems.swerve.gyro;
 
 public class GyroIOSim implements GyroIO {
+  private double yawRad = 0.0;
+  private double yawVelocityRadPerSec = 0.0;
+
   @Override
   public void updateInputs(GyroIOInputs inputs) {
     inputs.connected = true;
-    // In simulation, we typically calculate gyro yaw based on swerve kinematics in
-    // the Drive Subsystem
-    // and set it here via a setter, or just let the pose estimator handle ideal
-    // odometry.
-    // For now, simple stub.
+
+    // Integrar la velocidad angular para simular la posición (20ms por loop)
+    yawRad += yawVelocityRadPerSec * 0.02;
+
+    inputs.yawPositionRad = yawRad;
+    inputs.yawVelocityRadPerSec = yawVelocityRadPerSec;
+  }
+
+  // NUEVO: Método para que el SwerveDrive le inyecte la velocidad
+  public void setYawData(double velocityRadPerSec) {
+    this.yawVelocityRadPerSec = velocityRadPerSec;
   }
 }
