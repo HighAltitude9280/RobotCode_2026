@@ -35,8 +35,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final NeutralOut coastRequest = new NeutralOut();
 
   public FlywheelIOTalonFX(int leaderID, int followerID) {
-    leader = new TalonFX(leaderID, "rio");
-    follower = new TalonFX(followerID, "rio");
+    leader = new TalonFX(leaderID);
+    follower = new TalonFX(followerID);
 
     // --- Leader config ---
     TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
@@ -86,12 +86,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    inputs.connected =
-        BaseStatusSignal.refreshAll(
-                position, velocity, appliedVolts, supplyCurrent, torqueCurrent, temp)
-            .isOK();
-    inputs.followerConnected =
-        BaseStatusSignal.refreshAll(followerSupplyCurrent, followerTemp).isOK();
+    inputs.connected = BaseStatusSignal.refreshAll(
+        position, velocity, appliedVolts, supplyCurrent, torqueCurrent, temp)
+        .isOK();
+    inputs.followerConnected = BaseStatusSignal.refreshAll(followerSupplyCurrent, followerTemp).isOK();
 
     inputs.positionRads = position.getValue().in(Radians);
     inputs.velocityRadsPerSec = velocity.getValue().in(RadiansPerSecond);

@@ -23,7 +23,7 @@ public class RollerIOTalonFX implements RollerIO {
   private final NeutralOut coastRequest = new NeutralOut();
 
   public RollerIOTalonFX(int id) {
-    talon = new TalonFX(id, "rio");
+    talon = new TalonFX(id);
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
@@ -38,10 +38,9 @@ public class RollerIOTalonFX implements RollerIO {
 
   @Override
   public void updateInputs(RollerIOInputs inputs) {
-    inputs.connected =
-        BaseStatusSignal.refreshAll(
-                position, velocity, appliedVolts, supplyCurrent, torqueCurrent, temp)
-            .isOK();
+    inputs.connected = BaseStatusSignal.refreshAll(
+        position, velocity, appliedVolts, supplyCurrent, torqueCurrent, temp)
+        .isOK();
 
     inputs.positionRads = position.getValue().in(Radians);
     inputs.velocityRadsPerSec = velocity.getValue().in(RadiansPerSecond);

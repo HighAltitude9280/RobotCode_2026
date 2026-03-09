@@ -14,12 +14,14 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * Comando DriveToPose Replay-Ready. Soporta Dual-Gains (Travel vs Precision) y Live Tuning desde
+ * Comando DriveToPose Replay-Ready. Soporta Dual-Gains (Travel vs Precision) y
+ * Live Tuning desde
  * Dashboard.
  */
 public class DriveToPose extends Command {
   private final SwerveDrive drive;
   private final Supplier<Pose2d> targetPoseSupplier;
+  @SuppressWarnings("unused")
   private final boolean precisionMode;
 
   private final ProfiledPIDController xController;
@@ -58,36 +60,30 @@ public class DriveToPose extends Command {
     // 2. Configurar Constraints (Valores estáticos por seguridad)
     double maxLinVel = precisionMode ? Auto.PRECISION_LINEAR_VELOCITY : Auto.TRAVEL_LINEAR_VELOCITY;
 
-    double maxLinAcc =
-        precisionMode ? Auto.PRECISION_LINEAR_ACCELERATION : Auto.TRAVEL_LINEAR_ACCELERATION;
+    double maxLinAcc = precisionMode ? Auto.PRECISION_LINEAR_ACCELERATION : Auto.TRAVEL_LINEAR_ACCELERATION;
 
-    double maxAngVel =
-        precisionMode ? Auto.PRECISION_ANGULAR_VELOCITY : Auto.TRAVEL_ANGULAR_VELOCITY;
+    double maxAngVel = precisionMode ? Auto.PRECISION_ANGULAR_VELOCITY : Auto.TRAVEL_ANGULAR_VELOCITY;
 
-    double maxAngAcc =
-        precisionMode ? Auto.PRECISION_ANGULAR_ACCELERATION : Auto.TRAVEL_ANGULAR_ACCELERATION;
+    double maxAngAcc = precisionMode ? Auto.PRECISION_ANGULAR_ACCELERATION : Auto.TRAVEL_ANGULAR_ACCELERATION;
 
     // 3. Inicializar Controladores con los valores actuales de los Tunables
-    xController =
-        new ProfiledPIDController(
-            driveKp.get(),
-            driveKi.get(),
-            driveKd.get(),
-            new TrapezoidProfile.Constraints(maxLinVel, maxLinAcc));
+    xController = new ProfiledPIDController(
+        driveKp.get(),
+        driveKi.get(),
+        driveKd.get(),
+        new TrapezoidProfile.Constraints(maxLinVel, maxLinAcc));
 
-    yController =
-        new ProfiledPIDController(
-            driveKp.get(),
-            driveKi.get(),
-            driveKd.get(),
-            new TrapezoidProfile.Constraints(maxLinVel, maxLinAcc));
+    yController = new ProfiledPIDController(
+        driveKp.get(),
+        driveKi.get(),
+        driveKd.get(),
+        new TrapezoidProfile.Constraints(maxLinVel, maxLinAcc));
 
-    thetaController =
-        new ProfiledPIDController(
-            steerKp.get(),
-            steerKi.get(),
-            steerKd.get(),
-            new TrapezoidProfile.Constraints(maxAngVel, maxAngAcc));
+    thetaController = new ProfiledPIDController(
+        steerKp.get(),
+        steerKi.get(),
+        steerKd.get(),
+        new TrapezoidProfile.Constraints(maxAngVel, maxAngAcc));
 
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
     xController.setTolerance(Auto.POSE_TOLERANCE_METERS);
@@ -119,18 +115,27 @@ public class DriveToPose extends Command {
   public void execute() {
     // --- LIVE TUNING LOGIC ---
     // Actualizamos los PIDs si los cambió en el Dashboard
-    if (driveKp.hasChanged(xController.getP())) xController.setP(driveKp.get());
-    if (driveKi.hasChanged(xController.getI())) xController.setI(driveKi.get());
-    if (driveKd.hasChanged(xController.getD())) xController.setD(driveKd.get());
+    if (driveKp.hasChanged(xController.getP()))
+      xController.setP(driveKp.get());
+    if (driveKi.hasChanged(xController.getI()))
+      xController.setI(driveKi.get());
+    if (driveKd.hasChanged(xController.getD()))
+      xController.setD(driveKd.get());
 
     // Copiamos los valores de X a Y (asumimos simetría en traslación)
-    if (yController.getP() != xController.getP()) yController.setP(xController.getP());
-    if (yController.getI() != xController.getI()) yController.setI(xController.getI());
-    if (yController.getD() != xController.getD()) yController.setD(xController.getD());
+    if (yController.getP() != xController.getP())
+      yController.setP(xController.getP());
+    if (yController.getI() != xController.getI())
+      yController.setI(xController.getI());
+    if (yController.getD() != xController.getD())
+      yController.setD(xController.getD());
 
-    if (steerKp.hasChanged(thetaController.getP())) thetaController.setP(steerKp.get());
-    if (steerKi.hasChanged(thetaController.getI())) thetaController.setI(steerKi.get());
-    if (steerKd.hasChanged(thetaController.getD())) thetaController.setD(steerKd.get());
+    if (steerKp.hasChanged(thetaController.getP()))
+      thetaController.setP(steerKp.get());
+    if (steerKi.hasChanged(thetaController.getI()))
+      thetaController.setI(steerKi.get());
+    if (steerKd.hasChanged(thetaController.getD()))
+      thetaController.setD(steerKd.get());
 
     // --- CONTROL LOOP ---
     targetPose = targetPoseSupplier.get();
@@ -139,9 +144,8 @@ public class DriveToPose extends Command {
     // 1. Calcular Feedback (PID)
     double xFeedback = xController.calculate(currentPose.getX(), targetPose.getX());
     double yFeedback = yController.calculate(currentPose.getY(), targetPose.getY());
-    double thetaFeedback =
-        thetaController.calculate(
-            currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+    double thetaFeedback = thetaController.calculate(
+        currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
 
     // 2. Calcular Feedforward (Profile Velocity)
     double xFF = xController.getSetpoint().velocity;
@@ -150,9 +154,8 @@ public class DriveToPose extends Command {
 
     // 3. Output (Field Relative -> Robot Relative)
     // Convertimos a Robot Relative para enviar al Swerve
-    ChassisSpeeds robotRelativeSpeeds =
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-            xFeedback + xFF, yFeedback + yFF, thetaFeedback + thetaFF, currentPose.getRotation());
+    ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+        xFeedback + xFF, yFeedback + yFF, thetaFeedback + thetaFF, currentPose.getRotation());
 
     drive.runVelocity(robotRelativeSpeeds);
 
