@@ -28,6 +28,13 @@ import frc.robot.subsystems.swerve.gyro.GyroIOSim;
 import frc.robot.subsystems.swerve.module.ModuleIO;
 import frc.robot.subsystems.swerve.module.ModuleIOSim;
 import frc.robot.subsystems.swerve.module.ModuleIOTalonSpark;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOSim;
+
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
@@ -38,56 +45,125 @@ public class RobotContainer {
   private final Intake intake;
   private final Feeder feeder;
   private final Leds leds;
+  private final Vision vision;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
   public RobotContainer() {
-    if (Robot.isReal()) {
-      // Real Hardware
-      drive =
-          new SwerveDrive(
-              new GyroIONavX(),
-              createRealModule(Swerve.MOD_FL, 0),
-              createRealModule(Swerve.MOD_FR, 1),
-              createRealModule(Swerve.MOD_BL, 2),
-              createRealModule(Swerve.MOD_BR, 3));
 
-      flywheel =
-          new Flywheel(
-              new FlywheelIOTalonFX(
-                  HighAltitudeConstants.Shooter.ShooterRight,
-                  HighAltitudeConstants.Shooter.ShooterLeft));
+    String[] cameraNames = new String[] {
+        VisionConstants.FRONT_CAMERA_NAME,
+        VisionConstants.LEFT_CAMERA_NAME,
+        VisionConstants.RIGHT_CAMERA_NAME
+    };
 
-      intakePivot = new Pivot(new PivotIOSparkMax(HighAltitudeConstants.Pivot.PIVOTMOTOR));
+    switch (HighAltitudeConstants.currentMode) {
+      case REAL:
+        Logger.recordOutput("RobotContainer/Mode", "REAL");
 
-      indexer = new Indexer(new RollerIOTalonFX(HighAltitudeConstants.Indexer.INDEXERMOTOR));
+        // Real Hardware
+        drive = new SwerveDrive(
+            new GyroIONavX(),
+            createRealModule(Swerve.MOD_FL, 0),
+            createRealModule(Swerve.MOD_FR, 1),
+            createRealModule(Swerve.MOD_BL, 2),
+            createRealModule(Swerve.MOD_BR, 3));
 
-      intake = new Intake(new RollerIOTalonFX(HighAltitudeConstants.Intake.INTAKEMOTOR));
+        flywheel = new Flywheel(
+            new FlywheelIOTalonFX(
+                HighAltitudeConstants.Shooter.ShooterRight,
+                HighAltitudeConstants.Shooter.ShooterLeft));
 
-      feeder = new Feeder(new RollerIOTalonFX(HighAltitudeConstants.Feeder.FEEDERMOTOR));
+        intakePivot = new Pivot(new PivotIOSparkMax(HighAltitudeConstants.Pivot.PIVOTMOTOR));
 
-      leds =
-          new Leds(
-              new LedsIOCANdle(
-                  HighAltitudeConstants.Leds.LED_CANDLE_ID,
-                  HighAltitudeConstants.Leds.LED_CAN_BUS,
-                  HighAltitudeConstants.Leds.LED_COUNT));
-    } else {
-      // Simulation
-      drive =
-          new SwerveDrive(
-              new GyroIOSim(),
-              new SwerveModule(new ModuleIOSim(), 0),
-              new SwerveModule(new ModuleIOSim(), 1),
-              new SwerveModule(new ModuleIOSim(), 2),
-              new SwerveModule(new ModuleIOSim(), 3));
+        indexer = new Indexer(new RollerIOTalonFX(HighAltitudeConstants.Indexer.INDEXERMOTOR));
 
-      flywheel = new Flywheel(new FlywheelIO() {});
-      intakePivot = new Pivot(new PivotIO() {});
-      indexer = new Indexer(new RollerIO() {});
-      intake = new Intake(new RollerIO() {});
-      feeder = new Feeder(new RollerIO() {});
-      leds = new Leds(new LedsIO() {});
+        intake = new Intake(new RollerIOTalonFX(HighAltitudeConstants.Intake.INTAKEMOTOR));
+
+        feeder = new Feeder(new RollerIOTalonFX(HighAltitudeConstants.Feeder.FEEDERMOTOR));
+
+        leds = new Leds(
+            new LedsIOCANdle(
+                HighAltitudeConstants.Leds.LED_CANDLE_ID,
+                HighAltitudeConstants.Leds.LED_CAN_BUS,
+                HighAltitudeConstants.Leds.LED_COUNT));
+
+        // Hardware real: Cámaras físicas conectadas a la Orange Pi
+        vision = new Vision(
+            drive, // Tu instancia de SwerveDrive
+            cameraNames,
+            new VisionIOPhotonVision(VisionConstants.FRONT_CAMERA_NAME, VisionConstants.ROBOT_TO_FRONT),
+            new VisionIOPhotonVision(VisionConstants.LEFT_CAMERA_NAME, VisionConstants.ROBOT_TO_LEFT),
+            new VisionIOPhotonVision(VisionConstants.RIGHT_CAMERA_NAME, VisionConstants.ROBOT_TO_RIGHT));
+        break;
+
+      case SIM:
+        Logger.recordOutput("RobotContainer/Mode", "SIMULATION");
+
+        // Simulation
+        drive = new SwerveDrive(
+            new GyroIOSim(),
+            new SwerveModule(new ModuleIOSim(), 0),
+            new SwerveModule(new ModuleIOSim(), 1),
+            new SwerveModule(new ModuleIOSim(), 2),
+            new SwerveModule(new ModuleIOSim(), 3));
+
+        vision = new Vision(
+            drive,
+            cameraNames,
+            new VisionIOSim(drive::getPose), // Supplier de la pose actual
+            new VisionIOSim(drive::getPose),
+            new VisionIOSim(drive::getPose));
+
+        flywheel = new Flywheel(new FlywheelIO() {
+        });
+        intakePivot = new Pivot(new PivotIO() {
+        });
+        indexer = new Indexer(new RollerIO() {
+        });
+        intake = new Intake(new RollerIO() {
+        });
+        feeder = new Feeder(new RollerIO() {
+        });
+        leds = new Leds(new LedsIO() {
+        });
+        break;
+
+      default:
+        Logger.recordOutput("RobotContainer/Mode", "REPLAY");
+        // Replay: Interfaces vacías. AdvantageKit inyectará los logs de los inputs
+        // mágicamente.
+
+        drive = new SwerveDrive(
+            new GyroIOSim(),
+            new SwerveModule(new ModuleIOSim(), 0),
+            new SwerveModule(new ModuleIOSim(), 1),
+            new SwerveModule(new ModuleIOSim(), 2),
+            new SwerveModule(new ModuleIOSim(), 3));
+
+        vision = new Vision(
+            drive,
+            cameraNames,
+            new VisionIO() {
+            },
+            new VisionIO() {
+            },
+            new VisionIO() {
+            });
+
+        flywheel = new Flywheel(new FlywheelIO() {
+        });
+        intakePivot = new Pivot(new PivotIO() {
+        });
+        indexer = new Indexer(new RollerIO() {
+        });
+        intake = new Intake(new RollerIO() {
+        });
+        feeder = new Feeder(new RollerIO() {
+        });
+        leds = new Leds(new LedsIO() {
+        });
+        break;
     }
 
     configureBindings();
@@ -97,15 +173,14 @@ public class RobotContainer {
   }
 
   private SwerveModule createRealModule(ModuleConstants constants, int index) {
-    ModuleIO io =
-        new ModuleIOTalonSpark(
-            constants.driveID(),
-            constants.turnID(),
-            constants.cancoderID(),
-            constants.offset(),
-            Swerve.DRIVE_GEAR_RATIO,
-            Swerve.TURN_GEAR_RATIO,
-            constants.driveInverted());
+    ModuleIO io = new ModuleIOTalonSpark(
+        constants.driveID(),
+        constants.turnID(),
+        constants.cancoderID(),
+        constants.offset(),
+        Swerve.DRIVE_GEAR_RATIO,
+        Swerve.TURN_GEAR_RATIO,
+        constants.driveInverted());
     return new SwerveModule(io, index);
   }
 
@@ -119,7 +194,7 @@ public class RobotContainer {
             driver::getDriveRotation, // Omega
             driver::isPrecisionMode, // Gatillo izquierdo (Left Trigger)
             () -> false // Field Oriented siempre activado por defecto
-            ));
+        ));
     flywheel.setDefaultCommand(Commands.run(() -> flywheel.coast(), flywheel));
     driver.configureBindings(this);
   }

@@ -84,34 +84,34 @@ public final class HighAltitudeConstants {
     // --- LIVE TUNABLE PIDs (Dual Gains) ---
 
     // 1. TRAVEL MODE (Movement)
-    public static final LoggedTunableNumber travelDriveKp =
-        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Translation/kP", 2.5);
-    public static final LoggedTunableNumber travelDriveKi =
-        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Translation/kI", 0.0);
-    public static final LoggedTunableNumber travelDriveKd =
-        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Translation/kD", 0.0);
+    public static final LoggedTunableNumber travelDriveKp = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Travel/Translation/kP", 2.5);
+    public static final LoggedTunableNumber travelDriveKi = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Travel/Translation/kI", 0.0);
+    public static final LoggedTunableNumber travelDriveKd = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Travel/Translation/kD", 0.0);
 
-    public static final LoggedTunableNumber travelSteerKp =
-        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Rotation/kP", 3.5);
-    public static final LoggedTunableNumber travelSteerKi =
-        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Rotation/kI", 0.0);
-    public static final LoggedTunableNumber travelSteerKd =
-        new LoggedTunableNumber("Tuning/DriveToPose/Travel/Rotation/kD", 0.05);
+    public static final LoggedTunableNumber travelSteerKp = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Travel/Rotation/kP", 3.5);
+    public static final LoggedTunableNumber travelSteerKi = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Travel/Rotation/kI", 0.0);
+    public static final LoggedTunableNumber travelSteerKd = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Travel/Rotation/kD", 0.05);
 
     // 2. PRECISION MODE (Scoring/Climbing)
-    public static final LoggedTunableNumber precisionDriveKp =
-        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Translation/kP", 4.0);
-    public static final LoggedTunableNumber precisionDriveKi =
-        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Translation/kI", 0.0);
-    public static final LoggedTunableNumber precisionDriveKd =
-        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Translation/kD", 0.0);
+    public static final LoggedTunableNumber precisionDriveKp = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Precision/Translation/kP", 4.0);
+    public static final LoggedTunableNumber precisionDriveKi = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Precision/Translation/kI", 0.0);
+    public static final LoggedTunableNumber precisionDriveKd = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Precision/Translation/kD", 0.0);
 
-    public static final LoggedTunableNumber precisionSteerKp =
-        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Rotation/kP", 3.0);
-    public static final LoggedTunableNumber precisionSteerKi =
-        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Rotation/kI", 0.0);
-    public static final LoggedTunableNumber precisionSteerKd =
-        new LoggedTunableNumber("Tuning/DriveToPose/Precision/Rotation/kD", 0.0);
+    public static final LoggedTunableNumber precisionSteerKp = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Precision/Rotation/kP", 3.0);
+    public static final LoggedTunableNumber precisionSteerKi = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Precision/Rotation/kI", 0.0);
+    public static final LoggedTunableNumber precisionSteerKd = new LoggedTunableNumber(
+        "Tuning/DriveToPose/Precision/Rotation/kD", 0.0);
   }
 
   // --- PHYSICS SIMULATION CONSTANTS ---
@@ -148,18 +148,16 @@ public final class HighAltitudeConstants {
     public static final double TURN_GEAR_RATIO = 150.0 / 7.0;
 
     // Conversion Factors
-    public static final double DRIVE_METERS_PER_ROTATION =
-        (2.0 * Math.PI * WHEEL_RADIUS_METERS) / DRIVE_GEAR_RATIO;
+    public static final double DRIVE_METERS_PER_ROTATION = (2.0 * Math.PI * WHEEL_RADIUS_METERS) / DRIVE_GEAR_RATIO;
     public static final double TURN_RADIANS_PER_ROTATION = (2.0 * Math.PI) / TURN_GEAR_RATIO;
 
     // --- Kinematics ---
-    public static final SwerveDriveKinematics KINEMATICS =
-        new SwerveDriveKinematics(
-            new Translation2d(WHEEL_BASE_METERS / 2.0, TRACK_WIDTH_METERS / 2.0), // FL
-            new Translation2d(WHEEL_BASE_METERS / 2.0, -TRACK_WIDTH_METERS / 2.0), // FR
-            new Translation2d(-WHEEL_BASE_METERS / 2.0, TRACK_WIDTH_METERS / 2.0), // BL
-            new Translation2d(-WHEEL_BASE_METERS / 2.0, -TRACK_WIDTH_METERS / 2.0) // BR
-            );
+    public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
+        new Translation2d(WHEEL_BASE_METERS / 2.0, TRACK_WIDTH_METERS / 2.0), // FL
+        new Translation2d(WHEEL_BASE_METERS / 2.0, -TRACK_WIDTH_METERS / 2.0), // FR
+        new Translation2d(-WHEEL_BASE_METERS / 2.0, TRACK_WIDTH_METERS / 2.0), // BL
+        new Translation2d(-WHEEL_BASE_METERS / 2.0, -TRACK_WIDTH_METERS / 2.0) // BR
+    );
 
     // --- DRIVE CONTROL (PID + FF) ---
     public static final double DRIVE_KP = 0.125;
@@ -186,16 +184,16 @@ public final class HighAltitudeConstants {
 
     // --- Module Configuration ---
     public record ModuleConstants(
-        int driveID, int turnID, int cancoderID, Rotation2d offset, boolean driveInverted) {}
+        int driveID, int turnID, int cancoderID, Rotation2d offset, boolean driveInverted) {
+    }
 
-    public static final ModuleConstants MOD_FL =
-        new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(0.030), false);
-    public static final ModuleConstants MOD_FR =
-        new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(0.387), true);
-    public static final ModuleConstants MOD_BL =
-        new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-0.124), false);
-    public static final ModuleConstants MOD_BR =
-        new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-0.375), true);
+    public static final ModuleConstants MOD_FL = new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(0.030),
+        false);
+    public static final ModuleConstants MOD_FR = new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(0.387), true);
+    public static final ModuleConstants MOD_BL = new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-0.124),
+        false);
+    public static final ModuleConstants MOD_BR = new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-0.375),
+        true);
   }
 
   // Shooter
@@ -275,26 +273,5 @@ public final class HighAltitudeConstants {
     public static final int OFF_R = 0;
     public static final int OFF_G = 0;
     public static final int OFF_B = 0;
-  }
-
-  // =============================================================================
-  // VISION SUBSYSTEM
-  // =============================================================================
-  public static final class Vision {
-    public static final String CAMERA_FRONT_NAME = "ArducamFront2";
-    public static final String CAMERA_BACK_NAME = "limelight2plus";
-
-    public static final Transform3d FRONT_CAM_POSE =
-        new Transform3d(
-            new Translation3d(0.223774, 0.261112, 0.20917466),
-            new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-24.97)));
-
-    public static final Transform3d BACK_CAM_POSE =
-        new Transform3d(
-            new Translation3d(0.202692, -0.27051, 0.21686527),
-            new Rotation3d(0, Math.toRadians(-20), Math.toRadians(30)));
-
-    public static final double POSE_AMBIGUITY_CUTOFF = 0.15;
-    public static final double MAX_POSE_DISTANCE_METERS = 6.0;
   }
 }
