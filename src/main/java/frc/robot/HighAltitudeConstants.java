@@ -204,12 +204,19 @@ public final class HighAltitudeConstants {
     public static final double KV = 0.12;
 
     // Motor Ports
-    public static final int ShooterRight = 61;
-    public static final int ShooterLeft = 62;
+    public static final int SHOOTER_RIGHT_MOTOR_ID = 61;
+    public static final int SHOOTER_LEFT_MOTOR_ID = 62;
 
     // PD Control
-    public static final double ShooterkP = 0.7;
-    public static final double ShooterkD = 0.0;
+    public static final double SHOOTER_kP = 0.7;
+    public static final double SHOOTER_kD = 0.0;
+
+    // FIXME: change for real value on robot xd
+    public static final int HOOD_MOTOR_ID = 25;
+
+    // Constantes de límites
+    public static final double HOOD_MIN_ANGLE_RAD = 0.0;
+    public static final double HOOD_MAX_ANGLE_RAD = Math.toRadians(45.0); // Valor temporal (45 grados)
   }
 
   // Pivot
@@ -218,25 +225,25 @@ public final class HighAltitudeConstants {
     public static final double RETRACT_POS = 0;
     public static final double EXTENDED_POS = 0.25;
 
-    public static final int PIVOTMOTOR = 41;
+    public static final int PIVOT_MOTOR_ID = 41;
   }
 
   // Indexer
   public static final class Indexer {
     public static final double INDEXER_VOLTAGE = 0.5 * 12;
-    public static final int INDEXERMOTOR = 51;
+    public static final int INDEXER_MOTOR_ID = 51;
   }
 
   // Intake
   public static final class Intake {
     public static final double INTAKE_VOLTAGE = 0.5 * 12;
-    public static final int INTAKEMOTOR = 42;
+    public static final int INTAKE_MOTOR_ID = 42;
   }
 
   // Feeder
   public static final class Feeder {
     public static final double FEEDER_VOLTAGE = 0.4 * 12;
-    public static final int FEEDERMOTOR = 52;
+    public static final int FEEDER_MOTOR_ID = 52;
   }
 
   // Leds

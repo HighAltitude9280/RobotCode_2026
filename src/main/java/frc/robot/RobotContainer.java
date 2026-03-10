@@ -21,6 +21,10 @@ import frc.robot.subsystems.shooter.Feeder;
 import frc.robot.subsystems.shooter.Flywheel;
 import frc.robot.subsystems.shooter.FlywheelIO;
 import frc.robot.subsystems.shooter.FlywheelIOTalonFX;
+import frc.robot.subsystems.shooter.hood.Hood;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOSim;
+import frc.robot.subsystems.shooter.hood.HoodIOTalonFX;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwerveModule;
 import frc.robot.subsystems.swerve.gyro.GyroIONavX;
@@ -33,7 +37,6 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOSim;
-
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -46,6 +49,7 @@ public class RobotContainer {
   private final Feeder feeder;
   private final Leds leds;
   private final Vision vision;
+  private final Hood hood;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -71,16 +75,18 @@ public class RobotContainer {
 
         flywheel = new Flywheel(
             new FlywheelIOTalonFX(
-                HighAltitudeConstants.Shooter.ShooterRight,
-                HighAltitudeConstants.Shooter.ShooterLeft));
+                HighAltitudeConstants.Shooter.SHOOTER_RIGHT_MOTOR_ID,
+                HighAltitudeConstants.Shooter.SHOOTER_LEFT_MOTOR_ID));
 
-        intakePivot = new Pivot(new PivotIOSparkMax(HighAltitudeConstants.Pivot.PIVOTMOTOR));
+        intakePivot = new Pivot(new PivotIOSparkMax(HighAltitudeConstants.Pivot.PIVOT_MOTOR_ID));
 
-        indexer = new Indexer(new RollerIOTalonFX(HighAltitudeConstants.Indexer.INDEXERMOTOR));
+        indexer = new Indexer(new RollerIOTalonFX(HighAltitudeConstants.Indexer.INDEXER_MOTOR_ID));
 
-        intake = new Intake(new RollerIOTalonFX(HighAltitudeConstants.Intake.INTAKEMOTOR));
+        intake = new Intake(new RollerIOTalonFX(HighAltitudeConstants.Intake.INTAKE_MOTOR_ID));
 
-        feeder = new Feeder(new RollerIOTalonFX(HighAltitudeConstants.Feeder.FEEDERMOTOR));
+        feeder = new Feeder(new RollerIOTalonFX(HighAltitudeConstants.Feeder.FEEDER_MOTOR_ID));
+
+        hood = new Hood(new HoodIOTalonFX(HighAltitudeConstants.Shooter.HOOD_MOTOR_ID));
 
         leds = new Leds(
             new LedsIOCANdle(
@@ -91,9 +97,12 @@ public class RobotContainer {
         vision = new Vision(
             drive, // Tu instancia de SwerveDrive
             cameraNames,
-            new VisionIOPhotonVision(VisionConstants.FRONT_CAMERA_NAME, VisionConstants.ROBOT_TO_FRONT),
-            new VisionIOPhotonVision(VisionConstants.LEFT_CAMERA_NAME, VisionConstants.ROBOT_TO_LEFT),
-            new VisionIOPhotonVision(VisionConstants.RIGHT_CAMERA_NAME, VisionConstants.ROBOT_TO_RIGHT));
+            new VisionIOPhotonVision(
+                VisionConstants.FRONT_CAMERA_NAME, VisionConstants.ROBOT_TO_FRONT),
+            new VisionIOPhotonVision(
+                VisionConstants.LEFT_CAMERA_NAME, VisionConstants.ROBOT_TO_LEFT),
+            new VisionIOPhotonVision(
+                VisionConstants.RIGHT_CAMERA_NAME, VisionConstants.ROBOT_TO_RIGHT));
         break;
 
       case SIM:
@@ -126,6 +135,8 @@ public class RobotContainer {
         });
         leds = new Leds(new LedsIO() {
         });
+
+        hood = new Hood(new HoodIOSim());
         break;
 
       default:
@@ -140,16 +151,13 @@ public class RobotContainer {
             new SwerveModule(new ModuleIOSim(), 2),
             new SwerveModule(new ModuleIOSim(), 3));
 
-        vision = new Vision(
-            drive,
-            cameraNames,
-            new VisionIO() {
-            },
-            new VisionIO() {
-            },
-            new VisionIO() {
-            });
+        vision = new Vision(drive, cameraNames, new VisionIO() {
+        }, new VisionIO() {
+        }, new VisionIO() {
+        });
 
+        hood = new Hood(new HoodIO() {
+        });
         flywheel = new Flywheel(new FlywheelIO() {
         });
         intakePivot = new Pivot(new PivotIO() {
@@ -247,5 +255,9 @@ public class RobotContainer {
 
   public Vision getVision() {
     return vision;
+  }
+
+  public Hood getHood() {
+    return hood;
   }
 }

@@ -67,6 +67,15 @@ public class DefaultDriver implements ControlProfile {
     controller.povUp().onTrue(new PivotRetractCommand(container.getPivot()));
 
     controller.rightTrigger().whileTrue(new FlywheelShootCommand(container.getFlywheel()));
+
+    // --- HOOD MANUAL TESTING ---
+    // Gatillo Izquierdo: Manda el Hood a su posición máxima (45 grados)
+    controller.leftTrigger().onTrue(
+        container.getHood().runOnce(() -> container.getHood().setAngle(Math.toRadians(45.0))));
+
+    // Botón Back (Select): Regresa el Hood a 0 grados
+    controller.back().onTrue(
+        container.getHood().runOnce(() -> container.getHood().setAngle(0.0)));
     // --- DRIVER ASSISTS ---
 
     // Botón X: DriveToPose (PID Local) - Ajuste Fino
@@ -98,7 +107,7 @@ public class DefaultDriver implements ControlProfile {
                 () -> -controller.getLeftY(), // Forward
                 () -> -controller.getLeftX(), // Strafe
                 () -> FieldConstants.onAlliance(FieldConstants.BLUE_HUB_CENTER) // Target Dinámico
-                ));
+            ));
 
     // Botón A: Snap to FEEDER / ALLIANCE WALL (180 Grados)
     // Apunta hacia atrás para recoger game pieces o defender zona.
@@ -116,8 +125,10 @@ public class DefaultDriver implements ControlProfile {
   }
 
   /**
-   * Genera un comando de Pathfinding "On-the-Fly" usando PathPlanner. Usa Commands.defer para
-   * asegurar que el objetivo se calcule en el momento exacto que se presiona el botón (vital para
+   * Genera un comando de Pathfinding "On-the-Fly" usando PathPlanner. Usa
+   * Commands.defer para
+   * asegurar que el objetivo se calcule en el momento exacto que se presiona el
+   * botón (vital para
    * Alliance Flip).
    */
   private Command getPathFindCommand(
@@ -129,19 +140,18 @@ public class DefaultDriver implements ControlProfile {
           Pose2d target = targetPoseSupplier.get();
 
           // 2. Definir Constraints de Teleop (Más seguros que Auto)
-          PathConstraints constraints =
-              new PathConstraints(
-                  3.0, // Max Vel (m/s) - Rápido pero controlable
-                  2.5, // Max Accel (m/s^2) - Suave para no voltearse
-                  Units.degreesToRadians(360), // Max Ang Vel
-                  Units.degreesToRadians(540) // Max Ang Accel
-                  );
+          PathConstraints constraints = new PathConstraints(
+              3.0, // Max Vel (m/s) - Rápido pero controlable
+              2.5, // Max Accel (m/s^2) - Suave para no voltearse
+              Units.degreesToRadians(360), // Max Ang Vel
+              Units.degreesToRadians(540) // Max Ang Accel
+          );
 
           // 3. Generar la ruta A*
           // AutoBuilder ya fue configurado en SwerveDrive.java
           return AutoBuilder.pathfindToPose(
               target, constraints, 0.0 // Velocidad final 0 (llegar y parar)
-              );
+          );
         },
         Set.of(container.getDrive())); // Declaramos que este comando usará el Drive
   }
