@@ -8,9 +8,9 @@ public class LedsIOCANdle implements LedsIO {
   private final CANdle candle;
   private final int ledCount;
 
-  public LedsIOCANdle(int canId, String canBus, int ledCount) {
+  public LedsIOCANdle(int canId, int ledCount) {
     this.ledCount = ledCount;
-    this.candle = new CANdle(canId, canBus);
+    this.candle = new CANdle(canId);
   }
 
   @Override

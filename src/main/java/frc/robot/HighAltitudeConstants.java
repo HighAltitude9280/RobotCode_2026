@@ -8,10 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -245,11 +242,10 @@ public final class HighAltitudeConstants {
   // Leds
   public static final class Leds {
     public static final int LED_CANDLE_ID = 19;
-    public static final String LED_CAN_BUS = "";
 
     public static final int LED_COUNT = 23;
 
-    public static final double LED_BRIGHTNESS = 0.67;
+    public static final double LED_BRIGHTNESS = 0.41; // 0.67
 
     public static final double LED_BLINK_PERIOD = 0.25;
     public static final double LED_RAINBOW_SPEED = 0.02;

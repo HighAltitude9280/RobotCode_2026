@@ -85,7 +85,6 @@ public class RobotContainer {
         leds = new Leds(
             new LedsIOCANdle(
                 HighAltitudeConstants.Leds.LED_CANDLE_ID,
-                HighAltitudeConstants.Leds.LED_CAN_BUS,
                 HighAltitudeConstants.Leds.LED_COUNT));
 
         // Hardware real: Cámaras físicas conectadas a la Orange Pi
@@ -244,5 +243,9 @@ public class RobotContainer {
 
   public Leds getLeds() {
     return leds;
+  }
+
+  public Vision getVision() {
+    return vision;
   }
 }
