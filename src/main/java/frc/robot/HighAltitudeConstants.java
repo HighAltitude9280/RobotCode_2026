@@ -232,6 +232,8 @@ public final class HighAltitudeConstants {
   public static final class Indexer {
     public static final double INDEXER_VOLTAGE = 0.5 * 12;
     public static final int INDEXER_MOTOR_ID = 51;
+    public static final double STALL_CURRENT_AMPS = 25.0; //TODO calar el limite de corriente para regresar las pelotas
+    public static final double EJECT_DURATION_SECONDS = 0.3;
   }
 
   // Intake

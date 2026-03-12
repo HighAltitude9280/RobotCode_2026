@@ -35,6 +35,10 @@ public class Indexer extends SubsystemBase {
     return roller.getVelocityRadsPerSec();
   }
 
+  public boolean isStalled() {
+    return roller.getCurrentAmps() > HighAltitudeConstants.Indexer.STALL_CURRENT_AMPS;
+  }
+
   public boolean isConnected() {
     return roller.isConnected();
   }
